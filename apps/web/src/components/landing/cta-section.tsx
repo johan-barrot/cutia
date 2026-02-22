@@ -4,8 +4,11 @@ import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useTranslation } from "@i18next-toolkit/react";
 
 export function CTASection() {
+	const { t } = useTranslation();
+
 	return (
 		<section className="relative px-4 py-24 md:py-32">
 			<motion.div
@@ -31,11 +34,10 @@ export function CTASection() {
 
 					<div className="relative">
 						<h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
-							Ready to start editing?
+							{t('Ready to start editing?')}
 						</h2>
 						<p className="text-muted-foreground mx-auto mb-8 max-w-lg text-lg">
-							No sign-up required. Open the editor and start creating — your
-							first project is just a click away.
+							{t('No sign-up required. Open the editor and start creating — your first project is just a click away.')}
 						</p>
 						<Link href="/projects">
 							<Button
@@ -44,7 +46,7 @@ export function CTASection() {
 								size="lg"
 								className="h-12 gap-2 px-8 text-base"
 							>
-								Open Editor
+								{t('Open Editor')}
 								<ArrowRight className="size-4" />
 							</Button>
 						</Link>

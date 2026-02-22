@@ -1,3 +1,4 @@
+import { i18next } from "@i18next-toolkit/react";
 import { create } from "zustand";
 import { toast } from "sonner";
 import { EditorCore } from "@/core";
@@ -176,20 +177,20 @@ export const useAIImageGenerationStore = create<AIImageGenerationState>()(
 				useAISettingsStore.getState();
 
 			if (!imageProviderId) {
-				toast.error("Please configure an image provider in Settings");
+				toast.error(i18next.t("Please configure an image provider in Settings"));
 				return;
 			}
 
 			const provider = getImageProvider({ id: imageProviderId });
 			if (!provider || !imageApiKey) {
-				toast.error("Please configure an image provider in Settings");
+				toast.error(i18next.t("Please configure an image provider in Settings"));
 				return;
 			}
 
 			const { prompt, aspectRatio } = get();
 			const trimmedPrompt = prompt.trim();
 			if (!trimmedPrompt) {
-				toast.error("Please enter a prompt");
+				toast.error(i18next.t("Please enter a prompt"));
 				return;
 			}
 
@@ -217,7 +218,11 @@ export const useAIImageGenerationStore = create<AIImageGenerationState>()(
 					isGenerating: false,
 				}));
 
-				toast.success(`Generated ${results.length} image(s)`);
+				toast.success(
+					i18next.t("Generated {{count}} image(s)", {
+						count: results.length,
+					}),
+				);
 
 				for (const image of newImages) {
 					void convertAndAddToAssets({
@@ -229,7 +234,7 @@ export const useAIImageGenerationStore = create<AIImageGenerationState>()(
 				const message =
 					error instanceof Error
 						? error.message
-						: "Image generation failed";
+						: i18next.t("Image generation failed");
 				toast.error(message);
 				set({ isGenerating: false });
 			}

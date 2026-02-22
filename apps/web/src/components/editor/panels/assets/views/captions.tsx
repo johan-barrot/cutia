@@ -1,3 +1,4 @@
+import { useTranslation } from "@i18next-toolkit/react";
 import { Button } from "@/components/ui/button";
 import { PanelBaseView as BaseView } from "@/components/editor/panels/panel-base-view";
 import {
@@ -26,6 +27,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
 
 export function Captions() {
+	const { t } = useTranslation();
 	const [selectedLanguage, setSelectedLanguage] =
 		useState<TranscriptionLanguage>("auto");
 	const [selectedTemplate, setSelectedTemplate] = useState<SubtitleTemplate>(
@@ -39,9 +41,13 @@ export function Captions() {
 
 	const handleProgress = (progress: TranscriptionProgress) => {
 		if (progress.status === "loading-model") {
-			setProcessingStep(`Loading model ${Math.round(progress.progress)}%`);
+			setProcessingStep(
+				t("Loading model {{progress}}%", {
+					progress: Math.round(progress.progress),
+				}),
+			);
 		} else if (progress.status === "transcribing") {
-			setProcessingStep("Transcribing...");
+			setProcessingStep(t("Transcribing..."));
 		}
 	};
 
@@ -49,7 +55,7 @@ export function Captions() {
 		try {
 			setIsProcessing(true);
 			setError(null);
-			setProcessingStep("Extracting audio...");
+			setProcessingStep(t("Extracting audio..."));
 
 			const audioBlob = await extractTimelineAudio({
 				tracks: editor.timeline.getTracks(),
@@ -57,7 +63,7 @@ export function Captions() {
 				totalDuration: editor.timeline.getTotalDuration(),
 			});
 
-			setProcessingStep("Preparing audio...");
+			setProcessingStep(t("Preparing audio..."));
 			const { samples } = await decodeAudioToFloat32({ audioBlob });
 
 			const result = await transcriptionService.transcribe({
@@ -66,7 +72,7 @@ export function Captions() {
 				onProgress: handleProgress,
 			});
 
-			setProcessingStep("Generating captions...");
+			setProcessingStep(t("Generating captions..."));
 			const captionChunks = buildCaptionChunks({ segments: result.segments });
 
 			const captionTrackId = editor.timeline.addTrack({
@@ -98,7 +104,9 @@ export function Captions() {
 		} catch (error) {
 			console.error("Transcription failed:", error);
 			setError(
-				error instanceof Error ? error.message : "An unexpected error occurred",
+				error instanceof Error
+					? error.message
+					: t("An unexpected error occurred"),
 			);
 		} finally {
 			setIsProcessing(false);
@@ -135,16 +143,16 @@ export function Captions() {
 		>
 			<div className="flex flex-col gap-5">
 				<div className="flex flex-col gap-3">
-					<Label>Language</Label>
+					<Label>{t("Language")}</Label>
 					<Select
 						value={selectedLanguage}
 						onValueChange={(value) => handleLanguageChange({ value })}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select a language" />
+							<SelectValue placeholder={t("Select a language")} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="auto">Auto detect</SelectItem>
+							<SelectItem value="auto">{t("Auto detect")}</SelectItem>
 							{TRANSCRIPTION_LANGUAGES.map((language) => (
 								<SelectItem key={language.code} value={language.code}>
 									{language.name}
@@ -155,13 +163,13 @@ export function Captions() {
 				</div>
 
 				<div className="flex flex-col gap-3">
-					<Label>Subtitle Style</Label>
+					<Label>{t("Subtitle Style")}</Label>
 					<Select
 						value={selectedTemplate.templateId}
 						onValueChange={(value) => handleTemplateChange({ value })}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select a style" />
+							<SelectValue placeholder={t("Select a style")} />
 						</SelectTrigger>
 						<SelectContent>
 							{SUBTITLE_TEMPLATES.map((template) => (
@@ -192,7 +200,9 @@ export function Captions() {
 								borderRadius: 2,
 							}}
 						>
-							{selectedTemplate.templateName} Preview
+							{t("{{name}} Preview", {
+								name: selectedTemplate.templateName,
+							})}
 						</span>
 					</div>
 				</div>
@@ -211,7 +221,7 @@ export function Captions() {
 					disabled={isProcessing}
 				>
 					{isProcessing && <Spinner className="mr-1" />}
-					{isProcessing ? processingStep : "Generate transcript"}
+					{isProcessing ? processingStep : t("Generate transcript")}
 				</Button>
 			</div>
 		</BaseView>

@@ -1,6 +1,9 @@
+"use client";
+
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { useReducer, useRef } from "react";
+import { useTranslation } from "@i18next-toolkit/react";
 import { PanelBaseView } from "@/components/editor/panels/panel-base-view";
 import {
 	PropertyGroup,
@@ -20,6 +23,7 @@ export function VideoProperties({
 	_element: VideoElement | ImageElement;
 	trackId: string;
 }) {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const [, forceRender] = useReducer((x: number) => x + 1, 0);
 
@@ -136,11 +140,11 @@ export function VideoProperties({
 	return (
 		<div className="flex h-full flex-col">
 			<PanelBaseView className="p-0">
-				<PropertyGroup title="Transform" hasBorderTop={false} collapsible={false}>
+				<PropertyGroup title={t("Transform")} hasBorderTop={false} collapsible={false}>
 					<div className="space-y-6">
 						{/* Position X */}
 						<PropertyItem>
-							<PropertyItemLabel>Position X</PropertyItemLabel>
+							<PropertyItemLabel>{t("Position X")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<Input
 									type="number"
@@ -192,7 +196,7 @@ export function VideoProperties({
 
 						{/* Position Y */}
 						<PropertyItem>
-							<PropertyItemLabel>Position Y</PropertyItemLabel>
+							<PropertyItemLabel>{t("Position Y")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<Input
 									type="number"
@@ -244,7 +248,7 @@ export function VideoProperties({
 
 						{/* Scale */}
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Scale</PropertyItemLabel>
+							<PropertyItemLabel>{t("Scale")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider
@@ -329,7 +333,7 @@ export function VideoProperties({
 
 						{/* Rotation */}
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Rotation</PropertyItemLabel>
+							<PropertyItemLabel>{t("Rotation")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider
@@ -414,11 +418,11 @@ export function VideoProperties({
 					</div>
 				</PropertyGroup>
 
-				<PropertyGroup title="Appearance" collapsible={false}>
+				<PropertyGroup title={t("Appearance")} collapsible={false}>
 					<div className="space-y-6">
 						{/* Opacity */}
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Opacity</PropertyItemLabel>
+							<PropertyItemLabel>{t("Opacity")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider
@@ -542,10 +546,10 @@ export function VideoProperties({
 				</PropertyGroup>
 
 				{isVideoElement && (
-					<PropertyGroup title="Speed" collapsible={false}>
-						<div className="space-y-6">
-							<PropertyItem direction="column">
-								<PropertyItemLabel>Playback Speed</PropertyItemLabel>
+<PropertyGroup title={t("Speed")} collapsible={false}>
+								<div className="space-y-6">
+									<PropertyItem direction="column">
+										<PropertyItemLabel>{t("Playback Speed")}</PropertyItemLabel>
 								<PropertyItemValue>
 									<div className="flex flex-wrap gap-1.5">
 										{SPEED_PRESETS.map((preset) => {
@@ -587,7 +591,7 @@ export function VideoProperties({
 							</PropertyItem>
 
 							<PropertyItem>
-								<PropertyItemLabel>Custom</PropertyItemLabel>
+								<PropertyItemLabel>{t("Custom")}</PropertyItemLabel>
 								<PropertyItemValue>
 									<div className="flex items-center gap-1">
 										<Input

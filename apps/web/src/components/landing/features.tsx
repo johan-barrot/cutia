@@ -2,6 +2,7 @@
 
 import { Shield, Globe, Code2, Sparkles, Layers, MonitorPlay } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslation } from "@i18next-toolkit/react";
 
 const FEATURES = [
 	{
@@ -43,6 +44,8 @@ const FEATURES = [
 ];
 
 export function Features() {
+	const { t } = useTranslation();
+
 	return (
 		<section id="features" className="relative px-4 py-24 md:py-32">
 			<div className="mx-auto max-w-6xl">
@@ -54,11 +57,10 @@ export function Features() {
 					transition={{ duration: 0.6, ease: "easeOut" }}
 				>
 					<h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
-						Everything you need to edit
+						{t('Everything you need to edit')}
 					</h2>
 					<p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-						A focused set of tools designed for clarity and speed. No feature
-						bloat — just what matters.
+						{t('A focused set of tools designed for clarity and speed. No feature bloat — just what matters.')}
 					</p>
 				</motion.div>
 
@@ -84,9 +86,9 @@ export function Features() {
 							>
 								<feature.icon className="size-5 text-foreground/70" />
 							</motion.div>
-							<h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
+							<h3 className="mb-2 text-lg font-semibold">{t(feature.title)}</h3>
 							<p className="text-muted-foreground text-sm leading-relaxed">
-								{feature.description}
+								{t(feature.description)}
 							</p>
 						</motion.div>
 					))}

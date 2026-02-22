@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@i18next-toolkit/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	Tooltip,
@@ -15,6 +16,7 @@ import {
 } from "@/stores/assets-panel-store";
 
 export function TabBar() {
+	const { t } = useTranslation();
 	const { activeTab, setActiveTab } = useAssetsPanelStore();
 	const [showTopFade, setShowTopFade] = useState(false);
 	const [showBottomFade, setShowBottomFade] = useState(false);
@@ -58,7 +60,7 @@ export function TabBar() {
 							<TooltipTrigger asChild>
 								<Button
 									variant={activeTab === tabKey ? "secondary" : "text"}
-									aria-label={tab.label}
+									aria-label={t(tab.label)}
 									className={cn(
 										"flex-col !p-1.5 !rounded-sm !h-auto [&_svg]:size-4.5",
 										activeTab !== tabKey && "border border-transparent text-muted-foreground",
@@ -75,7 +77,7 @@ export function TabBar() {
 								sideOffset={8}
 							>
 								<div className="text-foreground text-sm leading-none font-medium">
-									{tab.label}
+									{t(tab.label)}
 								</div>
 							</TooltipContent>
 						</Tooltip>

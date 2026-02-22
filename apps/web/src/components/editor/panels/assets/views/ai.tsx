@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@i18next-toolkit/react";
 import { useCallback, useState } from "react";
 import { PanelBaseView as BaseView } from "@/components/editor/panels/panel-base-view";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const ASPECT_RATIOS = [
 ] as const;
 
 function AIImageView() {
+	const { t } = useTranslation();
 	const { imageProviderId, imageApiKey } = useAISettingsStore();
 	const { setActiveTab } = useAssetsPanelStore();
 
@@ -64,11 +66,12 @@ function AIImageView() {
 				/>
 				<div className="flex flex-col gap-1">
 					<p className="text-foreground text-sm font-medium">
-						No Image Provider Configured
+						{t("No Image Provider Configured")}
 					</p>
 					<p className="text-muted-foreground text-xs">
-						Select a provider and enter your API key in Settings to
-						get started.
+						{t(
+							"Select a provider and enter your API key in Settings to get started.",
+						)}
 					</p>
 				</div>
 				<Button
@@ -80,7 +83,7 @@ function AIImageView() {
 						if (event.key === "Enter") setActiveTab("settings");
 					}}
 				>
-					Go to Settings
+					{t("Go to Settings")}
 				</Button>
 			</div>
 		);
@@ -90,7 +93,7 @@ function AIImageView() {
 		<div className="flex flex-col gap-4">
 			<div className="flex flex-col gap-2">
 				<Textarea
-					placeholder="Describe the image you want to generate..."
+					placeholder={t("Describe the image you want to generate...")}
 					value={prompt}
 					onChange={(event) => setPrompt(event.target.value)}
 					rows={4}
@@ -137,7 +140,7 @@ function AIImageView() {
 									icon={Loading03Icon}
 									className="mr-1 size-4 animate-spin"
 								/>
-								Generating...
+								{t("Generating...")}
 							</>
 						) : (
 							<>
@@ -145,7 +148,7 @@ function AIImageView() {
 									icon={ImageAdd01Icon}
 									className="mr-1 size-4"
 								/>
-								Generate
+								{t("Generate")}
 							</>
 						)}
 					</Button>
@@ -155,7 +158,9 @@ function AIImageView() {
 			{generatedImages.length > 0 && (
 				<div className="flex flex-col gap-2">
 					<span className="text-muted-foreground text-xs font-medium">
-						Generated Images ({generatedImages.length})
+						{t("Generated Images ({{count}})", {
+							count: generatedImages.length,
+						})}
 					</span>
 					<div className="grid grid-cols-2 gap-2">
 						{generatedImages.map((image) => (
@@ -178,11 +183,13 @@ function AssetStatusBadge({
 	status: AssetStatus;
 	onRetry: () => void;
 }) {
+	const { t } = useTranslation();
+
 	if (status === "added") {
 		return (
 			<div
 				className="absolute top-1 right-1 rounded-full bg-green-500/90 p-0.5"
-				title="Added to assets"
+				title={t("Added to assets")}
 			>
 				<svg
 					className="size-3 text-white"
@@ -204,7 +211,7 @@ function AssetStatusBadge({
 		return (
 			<div
 				className="absolute top-1 right-1"
-				title="Adding to assets..."
+				title={t("Adding to assets...")}
 			>
 				<HugeiconsIcon
 					icon={Loading03Icon}
@@ -219,7 +226,7 @@ function AssetStatusBadge({
 			<button
 				type="button"
 				className="absolute top-1 right-1 cursor-pointer rounded-full bg-red-500/90 p-0.5"
-				title="Failed to add to assets. Click to retry."
+				title={t("Failed to add to assets. Click to retry.")}
 				onClick={(event) => {
 					event.stopPropagation();
 					onRetry();
@@ -296,21 +303,23 @@ function GeneratedImageCard({ image }: { image: GeneratedImage }) {
 }
 
 export function AIView() {
+	const { t } = useTranslation();
+
 	return (
 		<BaseView
 			defaultTab="ai-image"
 			tabs={[
 				{
 					value: "ai-image",
-					label: "AI Image",
+					label: t("AI Image"),
 					content: <AIImageView />,
 				},
 				{
 					value: "ai-video",
-					label: "AI Video",
+					label: t("AI Video"),
 					content: (
 						<div className="text-muted-foreground text-sm">
-							AI video generation coming soon...
+							{t("AI video generation coming soon...")}
 						</div>
 					),
 				},

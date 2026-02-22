@@ -9,19 +9,28 @@ import {
 } from "@/components/ui/dialog";
 import { useEditor } from "@/hooks/use-editor";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "@i18next-toolkit/react";
 
 export function MigrationDialog() {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const migrationState = editor.project.getMigrationState();
 
 	if (!migrationState.isMigrating) return null;
 
 	const title = migrationState.projectName
-		? "Updating project"
-		: "Updating projects";
+		? t('Updating project')
+		: t('Updating projects');
 	const description = migrationState.projectName
-		? `Upgrading "${migrationState.projectName}" from v${migrationState.fromVersion} to v${migrationState.toVersion}`
-		: `Upgrading projects from v${migrationState.fromVersion} to v${migrationState.toVersion}`;
+		? t('Upgrading "{{name}}" from v{{from}} to v{{to}}', {
+				name: migrationState.projectName,
+				from: migrationState.fromVersion,
+				to: migrationState.toVersion,
+			})
+		: t('Upgrading projects from v{{from}} to v{{to}}', {
+				from: migrationState.fromVersion,
+				to: migrationState.toVersion,
+			});
 
 	return (
 		<Dialog open={true}>

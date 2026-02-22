@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@i18next-toolkit/react";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -43,6 +44,7 @@ function isStickerCategory(value: string): value is StickerCategory {
 }
 
 export function StickersView() {
+	const { t } = useTranslation();
 	const { selectedCategory, setSelectedCategory } = useStickersStore();
 
 	return (
@@ -56,25 +58,25 @@ export function StickersView() {
 			tabs={[
 				{
 					value: "all",
-					label: "All",
+					label: t("All"),
 					icon: <HugeiconsIcon icon={LayoutGridIcon} className="size-3" />,
 					content: <StickersContentView category="all" />,
 				},
 				{
 					value: "general",
-					label: "Icons",
+					label: t("Icons"),
 					icon: <HugeiconsIcon icon={SparklesIcon} className="size-3" />,
 					content: <StickersContentView category="general" />,
 				},
 				{
 					value: "brands",
-					label: "Brands",
+					label: t("Brands"),
 					icon: <HugeiconsIcon icon={HashtagIcon} className="size-3" />,
 					content: <StickersContentView category="brands" />,
 				},
 				{
 					value: "emoji",
-					label: "Emoji",
+					label: t("Emoji"),
 					icon: <HugeiconsIcon icon={HappyIcon} className="size-3" />,
 					content: <StickersContentView category="emoji" />,
 				},
@@ -133,13 +135,15 @@ function CollectionGrid({
 	}>;
 	onSelectCollection: ({ prefix }: { prefix: string }) => void;
 }) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="grid grid-cols-1 gap-2">
 			{collections.map((collection) => (
 				<CollectionItem
 					key={collection.prefix}
 					title={collection.name}
-					subtitle={`${collection.total.toLocaleString()} icons${collection.category ? ` • ${collection.category}` : ""}`}
+					subtitle={`${collection.total.toLocaleString()} ${t("icons")}${collection.category ? ` • ${collection.category}` : ""}`}
 					onClick={() => onSelectCollection({ prefix: collection.prefix })}
 				/>
 			))}
@@ -148,6 +152,8 @@ function CollectionGrid({
 }
 
 function EmptyView({ message }: { message: string }) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="bg-background flex h-full flex-col items-center justify-center gap-3 p-4">
 			<HugeiconsIcon
@@ -155,7 +161,7 @@ function EmptyView({ message }: { message: string }) {
 				className="text-muted-foreground size-10"
 			/>
 			<div className="flex flex-col gap-2 text-center">
-				<p className="text-lg font-medium">No stickers found</p>
+				<p className="text-lg font-medium">{t("No stickers found")}</p>
 				<p className="text-muted-foreground text-sm text-balance">{message}</p>
 			</div>
 		</div>
@@ -163,6 +169,7 @@ function EmptyView({ message }: { message: string }) {
 }
 
 function StickersContentView({ category }: { category: StickerCategory }) {
+	const { t } = useTranslation();
 	const {
 		searchQuery,
 		selectedCollection,
@@ -251,7 +258,7 @@ function StickersContentView({ category }: { category: StickerCategory }) {
 			await addStickerToTimeline({ iconName });
 		} catch (error) {
 			console.error("Failed to add sticker:", error);
-			toast.error("Failed to add sticker to timeline");
+			toast.error(t("Failed to add sticker to timeline"));
 		}
 	};
 
@@ -311,12 +318,12 @@ function StickersContentView({ category }: { category: StickerCategory }) {
 					}}
 					placeholder={
 						category === "all"
-							? "Search all stickers"
+							? t("Search all stickers")
 							: category === "general"
-								? "Search icons"
+								? t("Search icons")
 								: category === "brands"
-									? "Search brands"
-									: "Search Emojis"
+									? t("Search brands")
+									: t("Search Emojis")
 					}
 					value={localSearchQuery}
 					onChange={setLocalSearchQuery}
@@ -338,7 +345,7 @@ function StickersContentView({ category }: { category: StickerCategory }) {
 										icon={ClockIcon}
 										className="text-muted-foreground size-4"
 									/>
-									<span className="text-sm font-medium">Recent</span>
+									<span className="text-sm font-medium">{t("Recent")}</span>
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger asChild>
@@ -354,7 +361,7 @@ function StickersContentView({ category }: { category: StickerCategory }) {
 												</button>
 											</TooltipTrigger>
 											<TooltipContent>
-												<p>Clear recent stickers</p>
+												<p>{t("Clear recent stickers")}</p>
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
@@ -398,7 +405,9 @@ function StickersContentView({ category }: { category: StickerCategory }) {
 									<>
 										<div className="mb-3 flex items-center justify-between">
 											<span className="text-muted-foreground text-sm">
-												{searchResults.total} results
+												{t("{{count}} results", {
+													count: searchResults.total,
+												})}
 											</span>
 										</div>
 										<StickerGrid
@@ -411,7 +420,9 @@ function StickersContentView({ category }: { category: StickerCategory }) {
 								) : searchQuery ? (
 									<div className="flex flex-col items-center justify-center gap-3 py-8">
 										<EmptyView
-											message={`No stickers found for "${searchQuery}"`}
+											message={t('No stickers found for "{{query}}"', {
+												query: searchQuery,
+											})}
 										/>
 										{category !== "all" && (
 											<Button
@@ -427,7 +438,7 @@ function StickersContentView({ category }: { category: StickerCategory }) {
 													}
 												}}
 											>
-												Search in all icons
+												{t("Search in all icons")}
 											</Button>
 										)}
 									</div>

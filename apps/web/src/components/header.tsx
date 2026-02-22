@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useTranslation } from "@i18next-toolkit/react";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -14,12 +15,13 @@ import { cn } from "@/utils/ui";
 import { DEFAULT_LOGO_URL } from "@/constants/site-constants";
 
 export function Header() {
+	const { t } = useTranslation();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const closeMenu = () => setIsMenuOpen(false);
 
 	const links = [
 		{
-			label: "Features",
+			label: t('Features'),
 			href: "#features",
 		},
 	];
@@ -74,7 +76,7 @@ export function Header() {
 								type="button"
 								className="text-sm"
 							>
-								Open Editor
+								{t('Open Editor')}
 								<ArrowRight className="size-3.5" />
 							</Button>
 						</Link>
@@ -148,7 +150,7 @@ export function Header() {
 										size="lg"
 										className="mt-4 w-full text-base"
 									>
-										Open Editor
+										{t('Open Editor')}
 										<ArrowRight className="size-4" />
 									</Button>
 								</Link>

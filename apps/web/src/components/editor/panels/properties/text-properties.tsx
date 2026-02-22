@@ -1,5 +1,8 @@
+"use client";
+
 import { Textarea } from "@/components/ui/textarea";
 import { FontPicker } from "@/components/ui/font-picker";
+import { useTranslation } from "@i18next-toolkit/react";
 import type { FontFamily } from "@/constants/font-constants";
 import type { TextElement, Transform } from "@/types/timeline";
 import { Slider } from "@/components/ui/slider";
@@ -27,6 +30,7 @@ export function TextProperties({
 	element: TextElement;
 	trackId: string;
 }) {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [, forceRender] = useReducer((x: number) => x + 1, 0);
@@ -265,7 +269,7 @@ export function TextProperties({
 	return (
 		<div className="flex h-full flex-col" ref={containerRef}>
 			<PanelBaseView className="p-0">
-				<PropertyGroup title="Content" hasBorderTop={false} collapsible={false}>
+				<PropertyGroup title={t("Content")} hasBorderTop={false} collapsible={false}>
 					<Textarea
 						placeholder="Name"
 						value={contentDisplay}
@@ -324,10 +328,10 @@ export function TextProperties({
 						}}
 					/>
 				</PropertyGroup>
-				<PropertyGroup title="Typography" collapsible={false}>
+				<PropertyGroup title={t("Typography")} collapsible={false}>
 					<div className="space-y-6">
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Font</PropertyItemLabel>
+							<PropertyItemLabel>{t("Font")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<FontPicker
 									defaultValue={element.fontFamily}
@@ -346,7 +350,7 @@ export function TextProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Style</PropertyItemLabel>
+							<PropertyItemLabel>{t("Style")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Button
@@ -457,7 +461,7 @@ export function TextProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Font size</PropertyItemLabel>
+							<PropertyItemLabel>{t("Font size")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider
@@ -530,10 +534,10 @@ export function TextProperties({
 						</PropertyItem>
 					</div>
 				</PropertyGroup>
-				<PropertyGroup title="Appearance" collapsible={false}>
+				<PropertyGroup title={t("Appearance")} collapsible={false}>
 					<div className="space-y-6">
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Color</PropertyItemLabel>
+							<PropertyItemLabel>{t("Color")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<ColorPicker
 									value={uppercase({
@@ -596,7 +600,7 @@ export function TextProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Opacity</PropertyItemLabel>
+							<PropertyItemLabel>{t("Opacity")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider
@@ -668,7 +672,7 @@ export function TextProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Background</PropertyItemLabel>
+							<PropertyItemLabel>{t("Background")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<ColorPicker
 									value={
@@ -691,10 +695,10 @@ export function TextProperties({
 						</PropertyItem>
 					</div>
 				</PropertyGroup>
-				<PropertyGroup title="Transform">
+				<PropertyGroup title={t("Transform")}>
 					<div className="space-y-6">
 						<PropertyItem>
-							<PropertyItemLabel>Position X</PropertyItemLabel>
+							<PropertyItemLabel>{t("Position X")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<Input
 									type="number"
@@ -760,7 +764,7 @@ export function TextProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 						<PropertyItem>
-							<PropertyItemLabel>Position Y</PropertyItemLabel>
+							<PropertyItemLabel>{t("Position Y")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<Input
 									type="number"
@@ -826,7 +830,7 @@ export function TextProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Scale</PropertyItemLabel>
+							<PropertyItemLabel>{t("Scale")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider
@@ -913,7 +917,7 @@ export function TextProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Rotation</PropertyItemLabel>
+							<PropertyItemLabel>{t("Rotation")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider

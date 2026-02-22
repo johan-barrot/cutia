@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@i18next-toolkit/react";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEditor } from "@/hooks/use-editor";
@@ -22,6 +23,7 @@ import {
 import { findAdjacentPairs } from "@/lib/timeline/transition-utils";
 
 export function TransitionsView() {
+	const { t } = useTranslation();
 	const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
 	const filteredPresets =
@@ -34,20 +36,22 @@ export function TransitionsView() {
 	return (
 		<div className="flex h-full flex-col">
 			<div className="border-b px-4 pt-3 pb-2">
-				<h3 className="mb-2 text-sm font-medium">Transitions</h3>
+				<h3 className="mb-2 text-sm font-medium">{t("Transitions")}</h3>
 				<p className="text-muted-foreground mb-2 text-xs">
-					Click a transition to apply it to adjacent clips. You can also click the junction icon between clips on the timeline.
+					{t(
+						"Click a transition to apply it to adjacent clips. You can also click the junction icon between clips on the timeline.",
+					)}
 				</p>
 				<div className="flex flex-wrap gap-1">
 					<CategoryPill
-						label="All"
+						label={t("All")}
 						isActive={selectedCategory === "all"}
 						onClick={() => setSelectedCategory("all")}
 					/>
 					{TRANSITION_CATEGORIES.map((category) => (
 						<CategoryPill
 							key={category}
-							label={TRANSITION_CATEGORY_LABELS[category]}
+							label={t(TRANSITION_CATEGORY_LABELS[category])}
 							isActive={selectedCategory === category}
 							onClick={() => setSelectedCategory(category)}
 						/>
@@ -91,10 +95,12 @@ function CategoryPill({
 }
 
 function TransitionPresetCard({ preset }: { preset: TransitionPreset }) {
+	const { t } = useTranslation();
 	const editor = useEditor();
 
 	const handleApplyTransition = () => {
 		applyTransitionToAdjacentPairs({
+			t,
 			editor,
 			transitionType: preset.type,
 		});
@@ -114,7 +120,11 @@ function TransitionPresetCard({ preset }: { preset: TransitionPreset }) {
 					</button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Apply {preset.label} transition to all adjacent clip junctions</p>
+					<p>
+						{t("Apply {{name}} transition to all adjacent clip junctions", {
+							name: preset.label,
+						})}
+					</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -239,9 +249,11 @@ function getArrowPath({ direction }: { direction: string }): string {
 }
 
 function applyTransitionToAdjacentPairs({
+	t,
 	editor,
 	transitionType,
 }: {
+	t: (key: string, options?: Record<string, unknown>) => string;
 	editor: ReturnType<typeof useEditor>;
 	transitionType: TransitionType;
 }) {
@@ -267,8 +279,17 @@ function applyTransitionToAdjacentPairs({
 	}
 
 	if (applied === 0) {
-		toast.info("No adjacent clips found. Place clips next to each other on a video track first.");
+		toast.info(
+			t(
+				"No adjacent clips found. Place clips next to each other on a video track first.",
+			),
+		);
 	} else {
-		toast.success(`Applied ${transitionType} to ${applied} junction(s)`);
+		toast.success(
+			t("Applied {{type}} to {{count}} junction(s)", {
+				type: transitionType,
+				count: applied,
+			}),
+		);
 	}
 }

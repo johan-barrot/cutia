@@ -1,3 +1,4 @@
+import { useTranslation } from "@i18next-toolkit/react";
 import { useState } from "react";
 import { DraggableItem } from "@/components/editor/panels/assets/draggable-item";
 import { PanelBaseView as BaseView } from "@/components/editor/panels/panel-base-view";
@@ -15,6 +16,7 @@ import { cn } from "@/utils/ui";
 const CATEGORY_KEYS = Object.keys(TEXT_STYLE_CATEGORIES) as TextStyleCategory[];
 
 export function TextView() {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const [activeCategory, setActiveCategory] =
 		useState<TextStyleCategory>("popular");
@@ -72,10 +74,10 @@ export function TextView() {
 			<div className="space-y-3">
 				{/* Default text */}
 				<DraggableItem
-					name="Default text"
+					name={t("Default text")}
 					preview={
 						<div className="bg-accent flex size-full items-center justify-center rounded">
-							<span className="text-xs select-none">Default text</span>
+							<span className="text-xs select-none">{t("Default text")}</span>
 						</div>
 					}
 					dragData={{
@@ -103,7 +105,7 @@ export function TextView() {
 							)}
 							onClick={() => setActiveCategory(category)}
 						>
-							{TEXT_STYLE_CATEGORIES[category]}
+							{t(TEXT_STYLE_CATEGORIES[category])}
 						</button>
 					))}
 				</div>
@@ -157,7 +159,7 @@ export function TextView() {
 								</span>
 							</div>
 							<span className="absolute inset-x-0 bottom-0 bg-black/60 px-1 py-0.5 text-center text-[0.6rem] text-white opacity-0 transition-opacity group-hover:opacity-100">
-								{preset.presetName}
+								{t(preset.presetName)}
 							</span>
 						</button>
 					))}

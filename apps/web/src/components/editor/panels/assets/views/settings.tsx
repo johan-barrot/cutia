@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@i18next-toolkit/react";
 import Image from "next/image";
 import { memo, useCallback, useMemo, useState } from "react";
 import { PanelBaseView as BaseView } from "@/components/editor/panels/panel-base-view";
@@ -40,13 +41,15 @@ export function SettingsView() {
 }
 
 function ProjectSettingsTabs() {
+	const { t } = useTranslation();
+
 	return (
 		<BaseView
 			defaultTab="project-info"
 			tabs={[
 				{
 					value: "project-info",
-					label: "Project info",
+					label: t("Project info"),
 					content: (
 						<div className="p-5">
 							<ProjectInfoView />
@@ -55,7 +58,7 @@ function ProjectSettingsTabs() {
 				},
 				{
 					value: "background",
-					label: "Background",
+					label: t("Background"),
 					content: (
 						<div className="flex h-full flex-col justify-between">
 							<div className="flex-1">
@@ -66,7 +69,7 @@ function ProjectSettingsTabs() {
 				},
 				{
 					value: "ai",
-					label: "AI",
+					label: t("AI"),
 					content: (
 						<div className="p-5">
 							<AISettingsView />
@@ -109,6 +112,7 @@ function resolveCanvasSizePresetValue({
 }
 
 function ProjectInfoView() {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const activeProject = editor.project.getActive();
 
@@ -170,32 +174,37 @@ function ProjectInfoView() {
 	return (
 		<div className="flex flex-col gap-4">
 			<PropertyItem direction="column">
-				<PropertyItemLabel>Name</PropertyItemLabel>
+				<PropertyItemLabel>{t("Name")}</PropertyItemLabel>
 				<PropertyItemValue>{activeProject.metadata.name}</PropertyItemValue>
 			</PropertyItem>
 
 			<PropertyItem direction="column">
-				<PropertyItemLabel>Canvas size</PropertyItemLabel>
+				<PropertyItemLabel>{t("Canvas size")}</PropertyItemLabel>
 				<PropertyItemValue>
 					<Select
 						value={selectedValue}
 						onValueChange={(value) => handleCanvasSizeChange({ value })}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select canvas size" />
+							<SelectValue placeholder={t("Select canvas size")} />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value={CANVAS_FIT_VALUE}>
 								{originalCanvasSize
-									? `Fit (${originalCanvasSize.width}×${originalCanvasSize.height})`
-									: "Fit"}
+									? t("Fit ({{width}}×{{height}})", {
+											width: originalCanvasSize.width,
+											height: originalCanvasSize.height,
+										})
+									: t("Fit")}
 							</SelectItem>
 							{CANVAS_SIZE_PRESETS.map((preset) => (
 								<SelectItem key={preset.label} value={preset.label}>
 									{preset.label} ({preset.width}×{preset.height})
 								</SelectItem>
 							))}
-							<SelectItem value={CANVAS_CUSTOM_VALUE}>Custom</SelectItem>
+							<SelectItem value={CANVAS_CUSTOM_VALUE}>
+								{t("Custom")}
+							</SelectItem>
 						</SelectContent>
 					</Select>
 				</PropertyItemValue>
@@ -218,7 +227,7 @@ function ProjectInfoView() {
 							}
 						}}
 						className="w-0 flex-1"
-						aria-label="Canvas width"
+						aria-label={t("Canvas width")}
 					/>
 					<span className="text-muted-foreground text-xs">×</span>
 					<Input
@@ -236,20 +245,20 @@ function ProjectInfoView() {
 							}
 						}}
 						className="w-0 flex-1"
-						aria-label="Canvas height"
+						aria-label={t("Canvas height")}
 					/>
 				</div>
 			)}
 
 			<PropertyItem direction="column">
-				<PropertyItemLabel>Frame rate</PropertyItemLabel>
+				<PropertyItemLabel>{t("Frame rate")}</PropertyItemLabel>
 				<PropertyItemValue>
 					<Select
 						value={activeProject.settings.fps.toString()}
 						onValueChange={handleFpsChange}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select a frame rate" />
+							<SelectValue placeholder={t("Select a frame rate")} />
 						</SelectTrigger>
 						<SelectContent>
 							{FPS_PRESETS.map((preset) => (
@@ -270,10 +279,12 @@ const BlurPreview = memo(
 		blur,
 		isSelected,
 		onSelect,
+		t,
 	}: {
 		blur: { label: string; value: number };
 		isSelected: boolean;
 		onSelect: () => void;
+		t: (key: string, options?: Record<string, string>) => string;
 	}) => (
 		<button
 			className={cn(
@@ -282,7 +293,7 @@ const BlurPreview = memo(
 			)}
 			onClick={onSelect}
 			type="button"
-			aria-label={`Select ${blur.label} blur`}
+			aria-label={t("Select {{label}} blur", { label: blur.label })}
 		>
 			<Image
 				src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -294,7 +305,7 @@ const BlurPreview = memo(
 			/>
 			<div className="absolute right-1 bottom-1 left-1 text-center">
 				<span className="rounded bg-black/50 px-1 text-xs text-white">
-					{blur.label}
+					{t(blur.label)}
 				</span>
 			</div>
 		</button>
@@ -357,6 +368,7 @@ const BackgroundPreviews = memo(
 BackgroundPreviews.displayName = "BackgroundPreviews";
 
 function BackgroundView() {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const activeProject = editor.project.getActive();
 	const blurLevels = useMemo(() => BLUR_INTENSITY_PRESETS, []);
@@ -400,20 +412,25 @@ function BackgroundView() {
 					blur={blur}
 					isSelected={isBlurBackground && currentBlurIntensity === blur.value}
 					onSelect={() => handleBlurSelect({ blurIntensity: blur.value })}
+					t={t}
 				/>
 			)),
-		[blurLevels, isBlurBackground, currentBlurIntensity, handleBlurSelect],
+		[blurLevels, isBlurBackground, currentBlurIntensity, handleBlurSelect, t],
 	);
 
 	const backgroundSections = [
-		{ title: "Colors", backgrounds: colors, useBackgroundColor: true },
-		{ title: "Pattern craft", backgrounds: patternCraftGradients },
-		{ title: "Syntax UI", backgrounds: syntaxUIGradients },
+		{ title: t("Colors"), backgrounds: colors, useBackgroundColor: true },
+		{ title: t("Pattern craft"), backgrounds: patternCraftGradients },
+		{ title: t("Syntax UI"), backgrounds: syntaxUIGradients },
 	];
 
 	return (
 		<div className="flex h-full flex-col">
-			<PropertyGroup title="Blur" hasBorderTop={false} defaultExpanded={false}>
+			<PropertyGroup
+				title={t("Blur")}
+				hasBorderTop={false}
+				defaultExpanded={false}
+			>
 				<div className="flex flex-wrap gap-2">{blurPreviews}</div>
 			</PropertyGroup>
 
@@ -441,6 +458,7 @@ function BackgroundView() {
 const NO_PROVIDER = "__none__";
 
 function AISettingsView() {
+	const { t } = useTranslation();
 	const {
 		imageProviderId,
 		imageApiKey,
@@ -464,20 +482,20 @@ function AISettingsView() {
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-3">
 				<span className="text-foreground text-xs font-medium">
-					Image Provider
+					{t("Image Provider")}
 				</span>
 				<PropertyItem direction="column">
-					<PropertyItemLabel>Provider</PropertyItemLabel>
+					<PropertyItemLabel>{t("Provider")}</PropertyItemLabel>
 					<PropertyItemValue>
 						<Select
 							value={imageProviderId ?? NO_PROVIDER}
 							onValueChange={handleImageProviderChange}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="Select a provider" />
+								<SelectValue placeholder={t("Select a provider")} />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value={NO_PROVIDER}>None</SelectItem>
+								<SelectItem value={NO_PROVIDER}>{t("None")}</SelectItem>
 								{IMAGE_PROVIDERS.map((provider) => (
 									<SelectItem key={provider.id} value={provider.id}>
 										{provider.name}
@@ -488,11 +506,11 @@ function AISettingsView() {
 					</PropertyItemValue>
 				</PropertyItem>
 				<PropertyItem direction="column">
-					<PropertyItemLabel>API Key</PropertyItemLabel>
+					<PropertyItemLabel>{t("API Key")}</PropertyItemLabel>
 					<PropertyItemValue>
 						<Input
 							type="password"
-							placeholder="Enter API key"
+							placeholder={t("Enter API key")}
 							value={imageApiKey}
 							onChange={(event) => setImageApiKey(event.target.value)}
 						/>
@@ -502,20 +520,20 @@ function AISettingsView() {
 
 			<div className="flex flex-col gap-3">
 				<span className="text-foreground text-xs font-medium">
-					Video Provider
+					{t("Video Provider")}
 				</span>
 				<PropertyItem direction="column">
-					<PropertyItemLabel>Provider</PropertyItemLabel>
+					<PropertyItemLabel>{t("Provider")}</PropertyItemLabel>
 					<PropertyItemValue>
 						<Select
 							value={videoProviderId ?? NO_PROVIDER}
 							onValueChange={handleVideoProviderChange}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="Select a provider" />
+								<SelectValue placeholder={t("Select a provider")} />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value={NO_PROVIDER}>None</SelectItem>
+								<SelectItem value={NO_PROVIDER}>{t("None")}</SelectItem>
 								{VIDEO_PROVIDERS.map((provider) => (
 									<SelectItem key={provider.id} value={provider.id}>
 										{provider.name}
@@ -526,11 +544,11 @@ function AISettingsView() {
 					</PropertyItemValue>
 				</PropertyItem>
 				<PropertyItem direction="column">
-					<PropertyItemLabel>API Key</PropertyItemLabel>
+					<PropertyItemLabel>{t("API Key")}</PropertyItemLabel>
 					<PropertyItemValue>
 						<Input
 							type="password"
-							placeholder="Enter API key"
+							placeholder={t("Enter API key")}
 							value={videoApiKey}
 							onChange={(event) => setVideoApiKey(event.target.value)}
 						/>

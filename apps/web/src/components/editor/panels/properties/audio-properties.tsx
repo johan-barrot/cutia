@@ -1,6 +1,9 @@
+"use client";
+
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { useReducer, useRef } from "react";
+import { useTranslation } from "@i18next-toolkit/react";
 import { PanelBaseView } from "@/components/editor/panels/panel-base-view";
 import {
 	PropertyGroup,
@@ -20,6 +23,7 @@ export function AudioProperties({
 	_element: AudioElement;
 	trackId: string;
 }) {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const [, forceRender] = useReducer((x: number) => x + 1, 0);
 
@@ -74,10 +78,10 @@ export function AudioProperties({
 	return (
 		<div className="flex h-full flex-col">
 			<PanelBaseView className="p-0">
-				<PropertyGroup title="Volume" hasBorderTop={false} collapsible={false}>
+				<PropertyGroup title={t("Volume")} hasBorderTop={false} collapsible={false}>
 					<div className="space-y-6">
 						<PropertyItem direction="column">
-							<PropertyItemLabel>Volume</PropertyItemLabel>
+							<PropertyItemLabel>{t("Volume")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-2">
 									<Slider
@@ -162,10 +166,10 @@ export function AudioProperties({
 					</div>
 				</PropertyGroup>
 
-				<PropertyGroup title="Speed" collapsible={false}>
-					<div className="space-y-6">
-						<PropertyItem direction="column">
-							<PropertyItemLabel>Playback Speed</PropertyItemLabel>
+<PropertyGroup title={t("Speed")} collapsible={false}>
+							<div className="space-y-6">
+								<PropertyItem direction="column">
+									<PropertyItemLabel>{t("Playback Speed")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex flex-wrap gap-1.5">
 									{SPEED_PRESETS.map((preset) => {
@@ -207,7 +211,7 @@ export function AudioProperties({
 						</PropertyItem>
 
 						<PropertyItem>
-							<PropertyItemLabel>Custom</PropertyItemLabel>
+							<PropertyItemLabel>{t("Custom")}</PropertyItemLabel>
 							<PropertyItemValue>
 								<div className="flex items-center gap-1">
 									<Input

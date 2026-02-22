@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "@i18next-toolkit/react";
 import { toast } from "sonner";
 import {
 	type KeyboardShortcut,
@@ -38,6 +39,7 @@ export function ShortcutsDialog({
 		isRecording,
 	} = useKeybindingsStore();
 
+	const { t } = useTranslation();
 	const { shortcuts } = useKeyboardShortcutsHelp();
 
 	const categories = Array.from(new Set(shortcuts.map((s) => s.category)));
@@ -57,7 +59,10 @@ export function ShortcutsDialog({
 				);
 				if (conflict) {
 					toast.error(
-						`Key "${keyString}" is already bound to "${conflict.existingAction}"`,
+						t('Key "{{key}}" is already bound to "{{action}}"', {
+							key: keyString,
+							action: conflict.existingAction,
+						}),
 					);
 					setRecordingShortcut(null);
 					return;
@@ -107,7 +112,7 @@ export function ShortcutsDialog({
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
 			<DialogContent className="flex max-h-[80vh] max-w-2xl flex-col p-0">
 				<DialogHeader>
-					<DialogTitle>Keyboard shortcuts</DialogTitle>
+					<DialogTitle>{t('Keyboard shortcuts')}</DialogTitle>
 				</DialogHeader>
 
 				<DialogBody className="scrollbar-thin flex-grow overflow-y-auto">
@@ -115,7 +120,7 @@ export function ShortcutsDialog({
 						{categories.map((category) => (
 							<div key={category} className="flex flex-col gap-1">
 								<h3 className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-									{category}
+									{t(category)}
 								</h3>
 								<div className="flex flex-col gap-1">
 									{shortcuts
@@ -137,7 +142,7 @@ export function ShortcutsDialog({
 				</DialogBody>
 				<DialogFooter>
 					<Button variant="destructive" onClick={resetToDefaults}>
-						Reset to default
+						{t('Reset to default')}
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -154,6 +159,7 @@ function ShortcutItem({
 	isRecording: boolean;
 	onStartRecording: (params: { shortcut: KeyboardShortcut }) => void;
 }) {
+	const { t } = useTranslation();
 	const displayKeys = shortcut.keys.filter((key: string) => {
 		if (
 			key.includes("Cmd") &&
@@ -170,7 +176,7 @@ function ShortcutItem({
 				{shortcut.icon && (
 					<div className="text-muted-foreground">{shortcut.icon}</div>
 				)}
-				<span className="text-sm">{shortcut.description}</span>
+				<span className="text-sm">{t(shortcut.description)}</span>
 			</div>
 			<div className="flex items-center gap-2">
 				{displayKeys.map((key: string, index: number) => (
@@ -190,7 +196,7 @@ function ShortcutItem({
 							})}
 						</div>
 						{index < displayKeys.length - 1 && (
-							<span className="text-muted-foreground text-xs">or</span>
+							<span className="text-muted-foreground text-xs">{t('or')}</span>
 						)}
 					</div>
 				))}
@@ -208,6 +214,7 @@ function EditableShortcutKey({
 	isRecording: boolean;
 	onStartRecording: () => void;
 }) {
+	const { t } = useTranslation();
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -220,7 +227,7 @@ function EditableShortcutKey({
 			size="sm"
 			onClick={handleClick}
 			title={
-				isRecording ? "Press any key combination..." : "Click to edit shortcut"
+				isRecording ? t('Press any key combination...') : t('Click to edit shortcut')
 			}
 		>
 			{children}

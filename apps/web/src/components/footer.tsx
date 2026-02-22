@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { FaGithub } from "react-icons/fa6";
 import Image from "next/image";
 import { DEFAULT_LOGO_URL, SOCIAL_LINKS } from "@/constants/site-constants";
+import { useTranslation } from "@i18next-toolkit/react";
 
 interface FooterLink {
 	label: string;
@@ -10,11 +13,9 @@ interface FooterLink {
 
 const footerLinks: FooterLink[] = [];
 
-const socialLinks = [
-	{ href: SOCIAL_LINKS.github, icon: FaGithub, label: "GitHub" },
-];
-
 export function Footer() {
+	const { t } = useTranslation();
+
 	return (
 		<footer className="border-t">
 			<div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-6 py-8 sm:flex-row sm:justify-between">
@@ -43,18 +44,15 @@ export function Footer() {
 				</div>
 
 				<div className="flex items-center gap-4">
-					{socialLinks.map((social) => (
-						<Link
-							key={social.href}
-							href={social.href}
-							className="text-muted-foreground hover:text-foreground transition-colors"
-							target="_blank"
-							rel="noopener noreferrer"
-							aria-label={social.label}
-						>
-							<social.icon className="size-4" />
-						</Link>
-					))}
+					<Link
+						href={SOCIAL_LINKS.github}
+						className="text-muted-foreground hover:text-foreground transition-colors"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={t('GitHub')}
+					>
+						<FaGithub className="size-4" />
+					</Link>
 					<span className="text-muted-foreground ml-2 text-xs">
 						© {new Date().getFullYear()} Cutia
 					</span>

@@ -1,3 +1,4 @@
+import { i18next } from "@i18next-toolkit/react";
 import { create } from "zustand";
 import type { SoundEffect, SavedSound } from "@/types/sounds";
 import { storageService } from "@/services/storage/service";
@@ -153,7 +154,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 			const errorMessage =
 				error instanceof Error ? error.message : "Failed to save sound";
 			set({ savedSoundsError: errorMessage });
-			toast.error("Failed to save sound");
+			toast.error(i18next.t("Failed to save sound"));
 			console.error("Failed to save sound:", error);
 		}
 	},
@@ -169,7 +170,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 			const errorMessage =
 				error instanceof Error ? error.message : "Failed to remove sound";
 			set({ savedSoundsError: errorMessage });
-			toast.error("Failed to remove sound");
+			toast.error(i18next.t("Failed to remove sound"));
 			console.error("Failed to remove sound:", error);
 		}
 	},
@@ -200,7 +201,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 			const errorMessage =
 				error instanceof Error ? error.message : "Failed to clear saved sounds";
 			set({ savedSoundsError: errorMessage });
-			toast.error("Failed to clear saved sounds");
+			toast.error(i18next.t("Failed to clear saved sounds"));
 			console.error("Failed to clear saved sounds:", error);
 		}
 	},
@@ -208,7 +209,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 	addSoundToTimeline: async ({ sound }) => {
 		const audioUrl = sound.previewUrl;
 		if (!audioUrl) {
-			toast.error("Sound file not available");
+			toast.error(i18next.t("Sound file not available"));
 			return false;
 		}
 
@@ -252,7 +253,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 			toast.error(
 				error instanceof Error
 					? error.message
-					: "Failed to add sound to timeline",
+					: i18next.t("Failed to add sound to timeline"),
 				{ id: `sound-${sound.id}` },
 			);
 			return false;

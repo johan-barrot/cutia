@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@i18next-toolkit/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -64,6 +65,7 @@ import {
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
 export function MediaView() {
+	const { t } = useTranslation();
 	const editor = useEditor();
 	const mediaFiles = editor.media.getAssets();
 	const activeProject = editor.project.getActive();
@@ -89,7 +91,7 @@ export function MediaView() {
 	const processFiles = async ({ files }: { files: FileList | File[] }) => {
 		if (!files || files.length === 0) return;
 		if (!activeProject) {
-			toast.error("No active project");
+			toast.error(t("No active project"));
 			return;
 		}
 
@@ -109,7 +111,7 @@ export function MediaView() {
 			}
 		} catch (error) {
 			console.error("Error processing files:", error);
-			toast.error("Failed to process files");
+			toast.error(t("Failed to process files"));
 		} finally {
 			setIsProcessing(false);
 			setProgress(0);
@@ -123,7 +125,7 @@ export function MediaView() {
 		try {
 			new URL(trimmedUrl);
 		} catch {
-			toast.error("Please enter a valid URL");
+			toast.error(t("Please enter a valid URL"));
 			return;
 		}
 
@@ -133,13 +135,13 @@ export function MediaView() {
 			await processFiles({ files: [file] });
 			setIsUrlDialogOpen(false);
 			setUrlInput("");
-			toast.success("Media imported successfully");
+			toast.success(t("Media imported successfully"));
 		} catch (error) {
 			console.error("Error importing from URL:", error);
 			toast.error(
 				error instanceof Error
 					? error.message
-					: "Failed to import media from URL",
+					: t("Failed to import media from URL"),
 			);
 		} finally {
 			setIsUrlImporting(false);
@@ -163,7 +165,7 @@ export function MediaView() {
 		event.stopPropagation();
 
 		if (!activeProject) {
-			toast.error("No active project");
+			toast.error(t("No active project"));
 			return;
 		}
 
@@ -268,7 +270,7 @@ export function MediaView() {
 				{...dragProps}
 			>
 				<div className="bg-background h-12 px-4 pr-2 flex items-center justify-between border-b">
-					<span className="text-muted-foreground text-sm">Assets</span>
+					<span className="text-muted-foreground text-sm">{t("Assets")}</span>
 					<div className="flex items-center gap-0">
 						<TooltipProvider>
 							<Tooltip>
@@ -294,8 +296,8 @@ export function MediaView() {
 								<TooltipContent>
 									<p>
 										{mediaViewMode === "grid"
-											? "Switch to list view"
-											: "Switch to grid view"}
+											? t("Switch to list view")
+											: t("Switch to grid view")}
 									</p>
 								</TooltipContent>
 								<Tooltip>
@@ -314,7 +316,7 @@ export function MediaView() {
 										</TooltipTrigger>
 										<DropdownMenuContent align="end">
 											<SortMenuItem
-												label="Name"
+												label={t("Name")}
 												sortKey="name"
 												currentSortBy={sortBy}
 												currentSortOrder={sortOrder}
@@ -328,7 +330,7 @@ export function MediaView() {
 												}}
 											/>
 											<SortMenuItem
-												label="Type"
+												label={t("Type")}
 												sortKey="type"
 												currentSortBy={sortBy}
 												currentSortOrder={sortOrder}
@@ -342,7 +344,7 @@ export function MediaView() {
 												}}
 											/>
 											<SortMenuItem
-												label="Duration"
+												label={t("Duration")}
 												sortKey="duration"
 												currentSortBy={sortBy}
 												currentSortOrder={sortOrder}
@@ -356,7 +358,7 @@ export function MediaView() {
 												}}
 											/>
 											<SortMenuItem
-												label="File size"
+												label={t("File size")}
 												sortKey="size"
 												currentSortBy={sortBy}
 												currentSortOrder={sortOrder}
@@ -373,8 +375,13 @@ export function MediaView() {
 									</DropdownMenu>
 									<TooltipContent>
 										<p>
-											Sort by {sortBy} (
-											{sortOrder === "asc" ? "ascending" : "descending"})
+											{t("Sort by {{sortBy}} ({{sortOrder}})", {
+												sortBy,
+												sortOrder:
+													sortOrder === "asc"
+														? t("ascending")
+														: t("descending"),
+											})}
 										</p>
 									</TooltipContent>
 								</Tooltip>
@@ -389,7 +396,7 @@ export function MediaView() {
 								className="items-center justify-center gap-1.5 ml-1.5 hover:bg-accent px-3"
 							>
 								<HugeiconsIcon icon={CloudUploadIcon} />
-								Import
+								{t("Import")}
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
@@ -398,14 +405,14 @@ export function MediaView() {
 								className="gap-2"
 							>
 								<HugeiconsIcon icon={ComputerIcon} className="size-4" />
-								From Device
+								{t("From Device")}
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={() => setIsUrlDialogOpen(true)}
 								className="gap-2"
 							>
 								<HugeiconsIcon icon={Link04Icon} className="size-4" />
-								From URL
+								{t("From URL")}
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -463,15 +470,16 @@ export function MediaView() {
 			<Dialog open={isUrlDialogOpen} onOpenChange={setIsUrlDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Import from URL</DialogTitle>
+						<DialogTitle>{t("Import from URL")}</DialogTitle>
 						<DialogDescription>
-							Enter a URL to import a remote media file (image, video, or
-							audio).
+							{t(
+								"Enter a URL to import a remote media file (image, video, or audio).",
+							)}
 						</DialogDescription>
 					</DialogHeader>
 					<DialogBody>
 						<Input
-							placeholder="https://example.com/media.mp4"
+							placeholder={t("Enter media URL")}
 							value={urlInput}
 							onChange={(event) => setUrlInput(event.target.value)}
 							onKeyDown={(event) => {
@@ -489,14 +497,14 @@ export function MediaView() {
 							onClick={() => setIsUrlDialogOpen(false)}
 							disabled={isUrlImporting}
 						>
-							Cancel
+							{t("Cancel")}
 						</Button>
 						<Button
 							type="button"
 							onClick={handleUrlImport}
 							disabled={isUrlImporting || !urlInput.trim()}
 						>
-							{isUrlImporting ? "Importing..." : "Import"}
+							{isUrlImporting ? t("Importing...") : t("Import")}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -514,16 +522,18 @@ function MediaItemWithContextMenu({
 	children: React.ReactNode;
 	onRemove: ({ event, id }: { event: React.MouseEvent; id: string }) => void;
 }) {
+	const { t } = useTranslation();
+
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>{children}</ContextMenuTrigger>
 			<ContextMenuContent>
-				<ContextMenuItem>Export clips</ContextMenuItem>
+				<ContextMenuItem>{t("Export clips")}</ContextMenuItem>
 				<ContextMenuItem
 					variant="destructive"
 					onClick={(event) => onRemove({ event, id: item.id })}
 				>
-					Delete
+					{t("Delete")}
 				</ContextMenuItem>
 			</ContextMenuContent>
 		</ContextMenu>
@@ -705,6 +715,7 @@ function MediaPreview({
 	item: MediaAsset;
 	variant?: "grid" | "compact";
 }) {
+	const { t } = useTranslation();
 	const shouldShowDurationBadge = variant === "grid";
 
 	if (item.type === "image") {
@@ -746,7 +757,7 @@ function MediaPreview({
 		return (
 			<MediaTypePlaceholder
 				icon={Video01Icon}
-				label="Video"
+				label={t("Video")}
 				duration={item.duration}
 				variant="muted"
 			/>
@@ -757,7 +768,7 @@ function MediaPreview({
 		return (
 			<MediaTypePlaceholder
 				icon={MusicNote03Icon}
-				label="Audio"
+				label={t("Audio")}
 				duration={item.duration}
 				variant="bordered"
 			/>
@@ -765,7 +776,11 @@ function MediaPreview({
 	}
 
 	return (
-		<MediaTypePlaceholder icon={Image02Icon} label="Unknown" variant="muted" />
+		<MediaTypePlaceholder
+			icon={Image02Icon}
+			label={t("Unknown")}
+			variant="muted"
+		/>
 	);
 }
 

@@ -1,3 +1,5 @@
+"use client";
+
 import {
 	Dialog,
 	DialogBody,
@@ -6,6 +8,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslation } from "@i18next-toolkit/react";
 import type { TProjectMetadata } from "@/types/project";
 import { formatDate } from "@/utils/date";
 import { formatTimeCode } from "@/lib/time";
@@ -35,6 +38,7 @@ export function ProjectInfoDialog({
 	onOpenChange: (open: boolean) => void;
 	project: TProjectMetadata;
 }) {
+	const { t } = useTranslation();
 	const durationFormatted =
 		project.duration > 0
 			? formatTimeCode({
@@ -53,17 +57,17 @@ export function ProjectInfoDialog({
 				</DialogHeader>
 
 				<DialogBody className="flex flex-col">
-					<InfoRow label="Duration" value={durationFormatted} />
+					<InfoRow label={t('Duration')} value={durationFormatted} />
 					<InfoRow
-						label="Created"
+						label={t('Created')}
 						value={formatDate({ date: project.createdAt })}
 					/>
 					<InfoRow
-						label="Modified"
+						label={t('Modified')}
 						value={formatDate({ date: project.updatedAt })}
 					/>
 					<InfoRow
-						label="Project ID"
+						label={t('Project ID')}
 						value={
 							<code className="text-xs bg-muted px-1.5 py-0.5 rounded">
 								{project.id.slice(0, 8)}
@@ -73,9 +77,9 @@ export function ProjectInfoDialog({
 				</DialogBody>
 				<DialogFooter>
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
-						Close
+						{t('Close')}
 					</Button>
-					<Button onClick={() => onOpenChange(false)}>Done</Button>
+					<Button onClick={() => onOpenChange(false)}>{t('Done')}</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
