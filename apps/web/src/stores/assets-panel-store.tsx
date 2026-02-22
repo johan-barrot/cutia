@@ -37,50 +37,64 @@ const createHugeiconsIcon =
 		<HugeiconsIcon icon={icon} className={className} />
 	);
 
+const TAB_LABELS: Record<Tab, string> = {
+	media: "Media",
+	sounds: "Sounds",
+	text: "Text",
+	stickers: "Stickers",
+	effects: "Effects",
+	transitions: "Transitions",
+	captions: "Captions",
+	filters: "Filters",
+	adjustment: "Adjustment",
+	ai: "AI",
+	settings: "Settings",
+};
+
 export const tabs = {
 	media: {
 		icon: createHugeiconsIcon({ icon: Folder03Icon }),
-		label: "Media",
+		label: TAB_LABELS.media,
 	},
 	sounds: {
 		icon: createHugeiconsIcon({ icon: HeadphonesIcon }),
-		label: "Sounds",
+		label: TAB_LABELS.sounds,
 	},
 	text: {
 		icon: createHugeiconsIcon({ icon: TextIcon }),
-		label: "Text",
+		label: TAB_LABELS.text,
 	},
 	stickers: {
 		icon: createHugeiconsIcon({ icon: Happy01Icon }),
-		label: "Stickers",
+		label: TAB_LABELS.stickers,
 	},
 	effects: {
 		icon: createHugeiconsIcon({ icon: MagicWand05Icon }),
-		label: "Effects",
+		label: TAB_LABELS.effects,
 	},
 	transitions: {
 		icon: createHugeiconsIcon({ icon: ArrowRightDoubleIcon }),
-		label: "Transitions",
+		label: TAB_LABELS.transitions,
 	},
 	captions: {
 		icon: createHugeiconsIcon({ icon: ClosedCaptionIcon }),
-		label: "Captions",
+		label: TAB_LABELS.captions,
 	},
 	filters: {
 		icon: createHugeiconsIcon({ icon: ColorsIcon }),
-		label: "Filters",
+		label: TAB_LABELS.filters,
 	},
 	adjustment: {
 		icon: createHugeiconsIcon({ icon: SlidersHorizontalIcon }),
-		label: "Adjustment",
+		label: TAB_LABELS.adjustment,
 	},
 	ai: {
 		icon: createHugeiconsIcon({ icon: AiBrain01Icon }),
-		label: "AI",
+		label: TAB_LABELS.ai,
 	},
 	settings: {
 		icon: createHugeiconsIcon({ icon: Settings01Icon }),
-		label: "Settings",
+		label: TAB_LABELS.settings,
 	},
 } satisfies Record<
 	Tab,

@@ -18,6 +18,21 @@ import {
 export function TabBar() {
 	const { t } = useTranslation();
 	const { activeTab, setActiveTab } = useAssetsPanelStore();
+
+	// i18next-toolkit: forces extraction of tab labels (dead code, extract-only)
+	if (false as boolean) {
+		t("Media");
+		t("Sounds");
+		t("Text");
+		t("Stickers");
+		t("Effects");
+		t("Transitions");
+		t("Captions");
+		t("Filters");
+		t("Adjustment");
+		t("AI");
+		t("Settings");
+	}
 	const [showTopFade, setShowTopFade] = useState(false);
 	const [showBottomFade, setShowBottomFade] = useState(false);
 	const scrollRef = useRef<HTMLDivElement>(null);
