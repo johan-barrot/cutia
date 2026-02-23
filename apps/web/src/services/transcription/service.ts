@@ -37,6 +37,8 @@ class TranscriptionService {
 		this.isCancelled = false;
 		await this.ensureWorker({ modelId, onProgress });
 
+		onProgress?.({ status: "transcribing", progress: 0 });
+
 		const chunkLengthSamples = Math.floor(
 			DEFAULT_CHUNK_LENGTH_SECONDS * sampleRate,
 		);
