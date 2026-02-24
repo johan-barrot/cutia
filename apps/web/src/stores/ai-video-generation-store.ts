@@ -8,6 +8,7 @@ import { pollVideoTask } from "@/lib/ai/providers/seedance";
 import { processMediaAssets } from "@/lib/media/processing";
 import { fetchWithProxyFallback } from "@/lib/media/url-import";
 import { useAISettingsStore } from "./ai-settings-store";
+import { useAIGenerationHistoryStore } from "./ai-generation-history-store";
 import { generateUUID } from "@/utils/id";
 
 export type VideoAssetStatus = "pending" | "adding" | "added" | "failed";
@@ -225,21 +226,33 @@ async function pollAndUpdate({
 			},
 		});
 
-		if (finalResult.status === "succeeded" && finalResult.videoUrl) {
-			updateVideo({
-				videoId,
-				updates: {
-					taskStatus: "succeeded",
-					videoUrl: finalResult.videoUrl,
-				},
-			});
+	if (finalResult.status === "succeeded" && finalResult.videoUrl) {
+		const currentVideo = useAIVideoGenerationStore
+			.getState()
+			.generatedVideos.find((v) => v.id === videoId);
 
-			toast.success(i18next.t("Video generation completed"));
-
-			void downloadAndAddToAssets({
-				videoId,
+		updateVideo({
+			videoId,
+			updates: {
+				taskStatus: "succeeded",
 				videoUrl: finalResult.videoUrl,
-			});
+			},
+		});
+
+		toast.success(i18next.t("Video generation completed"));
+
+		useAIGenerationHistoryStore.getState().addEntry({
+			id: generateUUID(),
+			type: "video",
+			prompt: currentVideo?.prompt ?? "",
+			url: finalResult.videoUrl,
+			provider: provider?.name ?? "",
+		});
+
+		void downloadAndAddToAssets({
+			videoId,
+			videoUrl: finalResult.videoUrl,
+		});
 		} else if (finalResult.status === "failed") {
 			updateVideo({
 				videoId,

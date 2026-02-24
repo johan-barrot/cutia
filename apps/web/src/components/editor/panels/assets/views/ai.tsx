@@ -22,11 +22,17 @@ import {
 	useAIVideoGenerationStore,
 	type GeneratedVideo,
 } from "@/stores/ai-video-generation-store";
+import {
+	getHistoryImageBlob,
+	useAIGenerationHistoryStore,
+	type AIGenerationHistoryEntry,
+} from "@/stores/ai-generation-history-store";
 import { useAISettingsStore } from "@/stores/ai-settings-store";
 import { useAssetsPanelStore } from "@/stores/assets-panel-store";
 import { cn } from "@/utils/ui";
 import {
 	ArrowUpRight01Icon,
+	Delete02Icon,
 	ImageAdd01Icon,
 	Loading03Icon,
 	Settings01Icon,
@@ -82,8 +88,9 @@ function AIImageView() {
 		generate,
 	} = useAIImageGenerationStore();
 
-	const provider =
-		imageProviderId ? getImageProvider({ id: imageProviderId }) : null;
+	const provider = imageProviderId
+		? getImageProvider({ id: imageProviderId })
+		: null;
 
 	const isConfigured = provider !== null && imageApiKey.length > 0;
 
@@ -129,10 +136,7 @@ function AIImageView() {
 					rows={4}
 					disabled={isGenerating}
 					onKeyDown={(event) => {
-						if (
-							event.key === "Enter" &&
-							(event.metaKey || event.ctrlKey)
-						) {
+						if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
 							generate();
 						}
 					}}
@@ -145,10 +149,7 @@ function AIImageView() {
 						</SelectTrigger>
 						<SelectContent>
 							{ASPECT_RATIOS.map((ratio) => (
-								<SelectItem
-									key={ratio.value}
-									value={ratio.value}
-								>
+								<SelectItem key={ratio.value} value={ratio.value}>
 									{ratio.label}
 								</SelectItem>
 							))}
@@ -174,10 +175,7 @@ function AIImageView() {
 							</>
 						) : (
 							<>
-								<HugeiconsIcon
-									icon={ImageAdd01Icon}
-									className="mr-1 size-4"
-								/>
+								<HugeiconsIcon icon={ImageAdd01Icon} className="mr-1 size-4" />
 								{t("Generate")}
 							</>
 						)}
@@ -194,10 +192,7 @@ function AIImageView() {
 					</span>
 					<div className="grid grid-cols-2 gap-2">
 						{generatedImages.map((image) => (
-							<GeneratedImageCard
-								key={image.id}
-								image={image}
-							/>
+							<GeneratedImageCard key={image.id} image={image} />
 						))}
 					</div>
 				</div>
@@ -239,10 +234,7 @@ function AssetStatusBadge({
 
 	if (status === "pending" || status === "adding") {
 		return (
-			<div
-				className="absolute top-1 right-1"
-				title={t("Adding to assets...")}
-			>
+			<div className="absolute top-1 right-1" title={t("Adding to assets...")}>
 				<HugeiconsIcon
 					icon={Loading03Icon}
 					className="size-4 animate-spin text-white drop-shadow"
@@ -350,10 +342,7 @@ function GeneratedImageCard({ image }: { image: GeneratedImage }) {
 					}}
 					onError={() => setHasError(true)}
 				/>
-				<AssetStatusBadge
-					status={image.assetStatus}
-					onRetry={handleRetry}
-				/>
+				<AssetStatusBadge status={image.assetStatus} onRetry={handleRetry} />
 				{isLoaded && <OpenInNewWindowButton url={image.url} />}
 			</div>
 		</div>
@@ -379,8 +368,9 @@ function AIVideoView() {
 		generate,
 	} = useAIVideoGenerationStore();
 
-	const provider =
-		videoProviderId ? getVideoProvider({ id: videoProviderId }) : null;
+	const provider = videoProviderId
+		? getVideoProvider({ id: videoProviderId })
+		: null;
 
 	const isConfigured = provider !== null && videoApiKey.length > 0;
 
@@ -420,18 +410,13 @@ function AIVideoView() {
 		<div className="flex flex-col gap-4">
 			<div className="flex flex-col gap-2">
 				<Textarea
-					placeholder={t(
-						"Describe the video you want to generate...",
-					)}
+					placeholder={t("Describe the video you want to generate...")}
 					value={prompt}
 					onChange={(event) => setPrompt(event.target.value)}
 					rows={4}
 					disabled={isGenerating}
 					onKeyDown={(event) => {
-						if (
-							event.key === "Enter" &&
-							(event.metaKey || event.ctrlKey)
-						) {
+						if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
 							generate();
 						}
 					}}
@@ -447,29 +432,20 @@ function AIVideoView() {
 						</SelectTrigger>
 						<SelectContent>
 							{VIDEO_DURATIONS.map((option) => (
-								<SelectItem
-									key={option.value}
-									value={option.value}
-								>
+								<SelectItem key={option.value} value={option.value}>
 									{option.label}
 								</SelectItem>
 							))}
 						</SelectContent>
 					</Select>
 
-					<Select
-						value={videoAspectRatio}
-						onValueChange={setVideoAspectRatio}
-					>
+					<Select value={videoAspectRatio} onValueChange={setVideoAspectRatio}>
 						<SelectTrigger className="w-[72px]">
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
 							{VIDEO_ASPECT_RATIOS.map((option) => (
-								<SelectItem
-									key={option.value}
-									value={option.value}
-								>
+								<SelectItem key={option.value} value={option.value}>
 									{option.label}
 								</SelectItem>
 							))}
@@ -482,10 +458,7 @@ function AIVideoView() {
 						</SelectTrigger>
 						<SelectContent>
 							{VIDEO_RESOLUTIONS.map((option) => (
-								<SelectItem
-									key={option.value}
-									value={option.value}
-								>
+								<SelectItem key={option.value} value={option.value}>
 									{option.label}
 								</SelectItem>
 							))}
@@ -511,10 +484,7 @@ function AIVideoView() {
 						</>
 					) : (
 						<>
-							<HugeiconsIcon
-								icon={Video01Icon}
-								className="mr-1 size-4"
-							/>
+							<HugeiconsIcon icon={Video01Icon} className="mr-1 size-4" />
 							{t("Generate Video")}
 						</>
 					)}
@@ -530,10 +500,7 @@ function AIVideoView() {
 					</span>
 					<div className="flex flex-col gap-2">
 						{generatedVideos.map((video) => (
-							<GeneratedVideoCard
-								key={video.id}
-								video={video}
-							/>
+							<GeneratedVideoCard key={video.id} video={video} />
 						))}
 					</div>
 				</div>
@@ -561,18 +528,14 @@ function VideoStatusBadge({
 					icon={Loading03Icon}
 					className="size-3.5 animate-spin text-blue-500"
 				/>
-				<span className="text-muted-foreground">
-					{t("Generating...")}
-				</span>
+				<span className="text-muted-foreground">{t("Generating...")}</span>
 			</div>
 		);
 	}
 
 	if (video.taskStatus === "failed") {
 		return (
-			<span className="text-xs text-red-500">
-				{video.error ?? t("Failed")}
-			</span>
+			<span className="text-xs text-red-500">{video.error ?? t("Failed")}</span>
 		);
 	}
 
@@ -683,6 +646,249 @@ function GeneratedVideoCard({ video }: { video: GeneratedVideo }) {
 	);
 }
 
+function HistoryEntryCard({ entry }: { entry: AIGenerationHistoryEntry }) {
+	const { t } = useTranslation();
+	const [isLoaded, setIsLoaded] = useState(false);
+	const [hasError, setHasError] = useState(false);
+	const { removeEntry } = useAIGenerationHistoryStore();
+
+	const displayUrl = entry.thumbnailUrl || entry.url;
+	const hasExternalUrl =
+		entry.url.length > 0 && !entry.url.startsWith("data:");
+
+	const handleOpenFullImage = useCallback(async () => {
+		const blob = await getHistoryImageBlob({ id: entry.id });
+		if (blob) {
+			const blobUrl = URL.createObjectURL(blob);
+			window.open(blobUrl, "_blank", "noopener,noreferrer");
+		} else if (hasExternalUrl) {
+			window.open(entry.url, "_blank", "noopener,noreferrer");
+		}
+	}, [entry.id, entry.url, hasExternalUrl]);
+	const createdDate = new Date(entry.createdAt);
+	const formattedDate = `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+
+	if (entry.type === "video") {
+		return (
+			<div className="bg-muted/50 group overflow-hidden rounded-md border p-3">
+				<div className="mb-1 flex items-center justify-between">
+					<div className="flex items-center gap-1.5">
+						<HugeiconsIcon
+							icon={Video01Icon}
+							className="text-muted-foreground size-3.5"
+						/>
+						<span className="text-muted-foreground text-[10px]">
+							{entry.provider}
+						</span>
+					</div>
+					<div className="flex items-center gap-1">
+						<span className="text-muted-foreground text-[10px]">
+							{formattedDate}
+						</span>
+						<button
+							type="button"
+							className="text-muted-foreground hover:text-destructive opacity-0 transition-opacity group-hover:opacity-100"
+							title={t("Remove")}
+							onClick={() => removeEntry(entry.id)}
+							onKeyDown={(event) => {
+								if (event.key === "Enter") removeEntry(entry.id);
+							}}
+						>
+							<HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
+						</button>
+					</div>
+				</div>
+				<p className="text-foreground mb-2 line-clamp-2 text-xs">
+					{entry.prompt}
+				</p>
+				<div className="group/video relative overflow-hidden rounded">
+					<video src={entry.url} controls className="w-full" preload="metadata">
+						<track kind="captions" />
+					</video>
+					<button
+						type="button"
+						className="absolute top-1 right-1 rounded-full bg-black/60 p-1 opacity-0 transition-opacity hover:bg-black/80 group-hover/video:opacity-100"
+						title={t("Open in new window")}
+						onClick={(event) => {
+							event.stopPropagation();
+							window.open(entry.url, "_blank", "noopener,noreferrer");
+						}}
+						onKeyDown={(event) => {
+							if (event.key === "Enter") {
+								event.stopPropagation();
+								window.open(entry.url, "_blank", "noopener,noreferrer");
+							}
+						}}
+					>
+						<HugeiconsIcon
+							icon={ArrowUpRight01Icon}
+							className="size-3.5 text-white"
+						/>
+					</button>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="bg-muted/50 group relative overflow-hidden rounded-md border">
+			<div className="relative aspect-square w-full overflow-hidden">
+				{!isLoaded && !hasError && (
+					<div className="bg-muted absolute inset-0 flex items-center justify-center">
+						<HugeiconsIcon
+							icon={Loading03Icon}
+							className="text-muted-foreground size-6 animate-spin"
+						/>
+					</div>
+				)}
+				{hasError && (
+					<div className="bg-muted absolute inset-0 flex items-center justify-center">
+						<HugeiconsIcon
+							icon={ImageAdd01Icon}
+							className="text-muted-foreground size-6"
+						/>
+					</div>
+				)}
+				{/* biome-ignore lint: external URL, can't use Next Image */}
+				<img
+					src={displayUrl}
+					alt={entry.prompt}
+					className={cn(
+						"h-full w-full object-cover transition-opacity",
+						isLoaded ? "opacity-100" : "opacity-0",
+					)}
+					onLoad={() => {
+						setIsLoaded(true);
+						setHasError(false);
+					}}
+					onError={() => setHasError(true)}
+				/>
+				<button
+					type="button"
+					className="absolute top-1 right-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+					title={t("Remove")}
+					onClick={(event) => {
+						event.stopPropagation();
+						removeEntry(entry.id);
+					}}
+					onKeyDown={(event) => {
+						if (event.key === "Enter") {
+							event.stopPropagation();
+							removeEntry(entry.id);
+						}
+					}}
+				>
+					<HugeiconsIcon icon={Delete02Icon} className="size-4 drop-shadow" />
+				</button>
+				{isLoaded && (
+					<button
+						type="button"
+						className="absolute bottom-1 right-1 rounded-full bg-black/60 p-1 opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100"
+						title={t("Open in new window")}
+						onClick={(event) => {
+							event.stopPropagation();
+							void handleOpenFullImage();
+						}}
+						onKeyDown={(event) => {
+							if (event.key === "Enter") {
+								event.stopPropagation();
+								void handleOpenFullImage();
+							}
+						}}
+					>
+						<HugeiconsIcon
+							icon={ArrowUpRight01Icon}
+							className="size-3.5 text-white"
+						/>
+					</button>
+				)}
+			</div>
+			<div className="p-1.5">
+				<p className="text-foreground line-clamp-1 text-[10px]">
+					{entry.prompt}
+				</p>
+				<div className="flex items-center justify-between">
+					<span className="text-muted-foreground text-[10px]">
+						{entry.provider}
+					</span>
+					<span className="text-muted-foreground text-[10px]">
+						{formattedDate}
+					</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function AIHistoryView() {
+	const { t } = useTranslation();
+	const { entries, clearHistory } = useAIGenerationHistoryStore();
+
+	if (entries.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+				<p className="text-muted-foreground text-sm">
+					{t("No generation history yet")}
+				</p>
+				<p className="text-muted-foreground text-xs">
+					{t("Your AI image and video generation results will appear here.")}
+				</p>
+			</div>
+		);
+	}
+
+	const imageEntries = entries.filter((entry) => entry.type === "image");
+	const videoEntries = entries.filter((entry) => entry.type === "video");
+
+	return (
+		<div className="flex flex-col gap-4">
+			<div className="flex items-center justify-between">
+				<span className="text-muted-foreground text-xs font-medium">
+					{t("{{num}} items", { num: entries.length })}
+				</span>
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					className="text-muted-foreground h-auto px-2 py-1 text-xs"
+					onClick={clearHistory}
+					onKeyDown={(event) => {
+						if (event.key === "Enter") clearHistory();
+					}}
+				>
+					{t("Clear All")}
+				</Button>
+			</div>
+
+			{imageEntries.length > 0 && (
+				<div className="flex flex-col gap-2">
+					<span className="text-muted-foreground text-xs font-medium">
+						{t("Images ({{num}})", { num: imageEntries.length })}
+					</span>
+					<div className="grid grid-cols-2 gap-2">
+						{imageEntries.map((entry) => (
+							<HistoryEntryCard key={entry.id} entry={entry} />
+						))}
+					</div>
+				</div>
+			)}
+
+			{videoEntries.length > 0 && (
+				<div className="flex flex-col gap-2">
+					<span className="text-muted-foreground text-xs font-medium">
+						{t("Videos ({{num}})", { num: videoEntries.length })}
+					</span>
+					<div className="flex flex-col gap-2">
+						{videoEntries.map((entry) => (
+							<HistoryEntryCard key={entry.id} entry={entry} />
+						))}
+					</div>
+				</div>
+			)}
+		</div>
+	);
+}
+
 export function AIView() {
 	const { t } = useTranslation();
 
@@ -699,6 +905,11 @@ export function AIView() {
 					value: "ai-video",
 					label: t("AI Video"),
 					content: <AIVideoView />,
+				},
+				{
+					value: "ai-history",
+					label: t("History"),
+					content: <AIHistoryView />,
 				},
 			]}
 			className="flex h-full flex-col"

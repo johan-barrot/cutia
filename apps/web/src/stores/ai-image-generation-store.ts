@@ -5,6 +5,11 @@ import { EditorCore } from "@/core";
 import { getImageProvider } from "@/lib/ai/providers";
 import { processMediaAssets } from "@/lib/media/processing";
 import { useAISettingsStore } from "./ai-settings-store";
+import {
+	createThumbnailDataUrl,
+	storeHistoryImage,
+	useAIGenerationHistoryStore,
+} from "./ai-generation-history-store";
 import { generateUUID } from "@/utils/id";
 
 export type AssetStatus = "pending" | "adding" | "added" | "failed";
@@ -160,6 +165,43 @@ async function convertAndAddToAssets({
 	}
 }
 
+async function addImageToHistory({
+	imageUrl,
+	prompt,
+	providerName,
+}: {
+	imageUrl: string;
+	prompt: string;
+	providerName: string;
+}): Promise<void> {
+	const entryId = generateUUID();
+	const createdAt = new Date().toISOString();
+
+	let thumbnailUrl: string | undefined;
+	try {
+		thumbnailUrl = await createThumbnailDataUrl({ imageUrl });
+	} catch {
+		// proceed without thumbnail
+	}
+
+	try {
+		const blob = await loadImageAsBlob({ url: imageUrl });
+		await storeHistoryImage({ id: entryId, blob, createdAt });
+	} catch {
+		// proceed without storing blob
+	}
+
+	const isDataUrl = imageUrl.startsWith("data:");
+	useAIGenerationHistoryStore.getState().addEntry({
+		id: entryId,
+		type: "image",
+		prompt,
+		url: isDataUrl ? "" : imageUrl,
+		thumbnailUrl,
+		provider: providerName,
+	});
+}
+
 export const useAIImageGenerationStore = create<AIImageGenerationState>()(
 	(set, get) => ({
 		prompt: "",
@@ -218,18 +260,23 @@ export const useAIImageGenerationStore = create<AIImageGenerationState>()(
 					isGenerating: false,
 				}));
 
-				toast.success(
-					i18next.t("Generated {{num}} image(s)", {
-						num: results.length,
-					}),
-				);
+			toast.success(
+				i18next.t("Generated {{num}} image(s)", {
+					num: results.length,
+				}),
+			);
 
-				for (const image of newImages) {
-					void convertAndAddToAssets({
-						imageId: image.id,
-						imageUrl: image.url,
-					});
-				}
+			for (const image of newImages) {
+				void addImageToHistory({
+					imageUrl: image.url,
+					prompt: trimmedPrompt,
+					providerName: provider.name,
+				});
+				void convertAndAddToAssets({
+					imageId: image.id,
+					imageUrl: image.url,
+				});
+			}
 			} catch (error) {
 				const message =
 					error instanceof Error
