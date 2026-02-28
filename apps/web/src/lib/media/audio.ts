@@ -38,29 +38,34 @@ export async function decodeAudioToFloat32({
 	const audioContext = targetSampleRate
 		? new AudioContext({ sampleRate: targetSampleRate })
 		: createAudioContext();
-	const arrayBuffer = await audioBlob.arrayBuffer();
-	const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-	const numChannels = audioBuffer.numberOfChannels;
-	const length = audioBuffer.length;
-	const samples = new Float32Array(length);
+	try {
+		const arrayBuffer = await audioBlob.arrayBuffer();
+		const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-	if (numChannels === 2) {
-		// stereo -> mono with power-preserving scaling
-		const SCALING_FACTOR = Math.sqrt(2);
-		const left = audioBuffer.getChannelData(0);
-		const right = audioBuffer.getChannelData(1);
-		for (let i = 0; i < length; i++) {
-			samples[i] = (SCALING_FACTOR * (left[i] + right[i])) / 2;
+		const numChannels = audioBuffer.numberOfChannels;
+		const length = audioBuffer.length;
+		const samples = new Float32Array(length);
+
+		if (numChannels === 2) {
+			// stereo -> mono with power-preserving scaling
+			const SCALING_FACTOR = Math.sqrt(2);
+			const left = audioBuffer.getChannelData(0);
+			const right = audioBuffer.getChannelData(1);
+			for (let i = 0; i < length; i++) {
+				samples[i] = (SCALING_FACTOR * (left[i] + right[i])) / 2;
+			}
+		} else {
+			const channel = audioBuffer.getChannelData(0);
+			for (let i = 0; i < length; i++) {
+				samples[i] = channel[i];
+			}
 		}
-	} else {
-		const channel = audioBuffer.getChannelData(0);
-		for (let i = 0; i < length; i++) {
-			samples[i] = channel[i];
-		}
+
+		return { samples, sampleRate: audioBuffer.sampleRate };
+	} finally {
+		await audioContext.close();
 	}
-
-	return { samples, sampleRate: audioBuffer.sampleRate };
 }
 
 export async function collectAudioElements({

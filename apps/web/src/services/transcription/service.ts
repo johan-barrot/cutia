@@ -61,6 +61,13 @@ class TranscriptionService {
 						});
 						break;
 
+					case "transcribe-progress":
+						onProgress?.({
+							status: "transcribing",
+							progress: response.progress,
+						});
+						break;
+
 					case "transcribe-complete":
 						this.worker?.removeEventListener("message", handleMessage);
 						resolve({
@@ -85,12 +92,13 @@ class TranscriptionService {
 
 			this.worker.addEventListener("message", handleMessage);
 
-			this.worker.postMessage({
+			const message: WorkerMessage = {
 				type: "transcribe",
 				audio: audioData,
 				language,
 				subtask: subtask === "transcribe" ? null : subtask,
-			} satisfies WorkerMessage);
+			};
+			this.worker.postMessage(message, [audioData.buffer]);
 		});
 	}
 

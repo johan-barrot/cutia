@@ -58,7 +58,7 @@ export function ExportButton() {
 					}}
 				>
 					<HugeiconsIcon icon={TransitionTopIcon} className="size-4" />
-					<span>{t('Export')}</span>
+					<span>{t("Export")}</span>
 				</button>
 			</PopoverTrigger>
 			{hasProject && <ExportPopover onOpenChange={setIsExportPopoverOpen} />}
@@ -176,13 +176,13 @@ function ExportPopover({
 											<div className="flex items-center space-x-2">
 												<RadioGroupItem value="mp4" id="mp4" />
 												<Label htmlFor="mp4">
-													{t('MP4 (H.264) - Better compatibility')}
+													{t("MP4 (H.264) - Better compatibility")}
 												</Label>
 											</div>
 											<div className="flex items-center space-x-2">
 												<RadioGroupItem value="webm" id="webm" />
 												<Label htmlFor="webm">
-													{t('WebM (VP9) - Smaller file size')}
+													{t("WebM (VP9) - Smaller file size")}
 												</Label>
 											</div>
 										</RadioGroup>
@@ -199,20 +199,22 @@ function ExportPopover({
 										>
 											<div className="flex items-center space-x-2">
 												<RadioGroupItem value="low" id="low" />
-												<Label htmlFor="low">{t('Low - Smallest file size')}</Label>
+												<Label htmlFor="low">
+													{t("Low - Smallest file size")}
+												</Label>
 											</div>
 											<div className="flex items-center space-x-2">
 												<RadioGroupItem value="medium" id="medium" />
-												<Label htmlFor="medium">{t('Medium - Balanced')}</Label>
+												<Label htmlFor="medium">{t("Medium - Balanced")}</Label>
 											</div>
 											<div className="flex items-center space-x-2">
 												<RadioGroupItem value="high" id="high" />
-												<Label htmlFor="high">{t('High - Recommended')}</Label>
+												<Label htmlFor="high">{t("High - Recommended")}</Label>
 											</div>
 											<div className="flex items-center space-x-2">
 												<RadioGroupItem value="very_high" id="very_high" />
 												<Label htmlFor="very_high">
-													{t('Very High - Largest file size')}
+													{t("Very High - Largest file size")}
 												</Label>
 											</div>
 										</RadioGroup>
@@ -228,7 +230,7 @@ function ExportPopover({
 												}
 											/>
 											<Label htmlFor="include-audio">
-												{t('Include audio in export')}
+												{t("Include audio in export")}
 											</Label>
 										</div>
 									</PropertyGroup>
@@ -237,7 +239,7 @@ function ExportPopover({
 								<div className="p-3 pt-0">
 									<Button onClick={handleExport} className="w-full gap-2">
 										<Download className="size-4" />
-										{t('Export')}
+										{t("Export")}
 									</Button>
 								</div>
 							</>
@@ -250,7 +252,6 @@ function ExportPopover({
 										<p className="text-muted-foreground mb-2 text-sm">
 											{Math.round(progress * 100)}%
 										</p>
-										<p className="text-muted-foreground mb-2 text-sm">100%</p>
 									</div>
 									<Progress value={progress * 100} className="w-full" />
 								</div>
@@ -260,7 +261,7 @@ function ExportPopover({
 									className="w-full rounded-md"
 									onClick={handleCancel}
 								>
-									{t('Cancel')}
+									{t("Cancel")}
 								</Button>
 							</div>
 						)}
@@ -298,7 +299,9 @@ function ExportError({
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col gap-1.5">
-				<p className="text-destructive text-sm font-medium">{t('Export failed')}</p>
+				<p className="text-destructive text-sm font-medium">
+					{t("Export failed")}
+				</p>
 				<p className="text-muted-foreground text-xs">{error}</p>
 			</div>
 
@@ -310,7 +313,7 @@ function ExportError({
 					onClick={handleCopy}
 				>
 					{copied ? <Check className="text-constructive" /> : <Copy />}
-					{t('Copy')}
+					{t("Copy")}
 				</Button>
 				<Button
 					variant="outline"
@@ -319,7 +322,7 @@ function ExportError({
 					onClick={onRetry}
 				>
 					<RotateCcw />
-					{t('Retry')}
+					{t("Retry")}
 				</Button>
 			</div>
 		</div>

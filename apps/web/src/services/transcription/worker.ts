@@ -35,6 +35,7 @@ export type WorkerResponse =
 			chunks: TranscriptionChunk[];
 			tps: number;
 	  }
+	| { type: "transcribe-progress"; progress: number }
 	| {
 			type: "transcribe-complete";
 			text: string;
@@ -199,6 +200,17 @@ async function handleTranscribe({
 		const chunkLengthS = isDistilWhisper ? 20 : DEFAULT_CHUNK_LENGTH_SECONDS;
 		const strideLengthS = isDistilWhisper ? 3 : DEFAULT_STRIDE_SECONDS;
 
+		const WHISPER_SAMPLE_RATE = 16000;
+		const audioDurationS = audio.length / WHISPER_SAMPLE_RATE;
+		const stepS = chunkLengthS - strideLengthS;
+		const estimatedTotalChunks = Math.max(
+			1,
+			Math.ceil(audioDurationS / stepS),
+		);
+
+		let lastUpdateTime = 0;
+		const UPDATE_THROTTLE_MS = 100;
+
 		const tokenizer = transcriber.tokenizer as Parameters<
 			typeof WhisperTextStreamer extends new (
 				tok: infer T,
@@ -210,7 +222,7 @@ async function handleTranscribe({
 		const streamer = new WhisperTextStreamer(tokenizer, {
 			time_precision: timePrecision,
 			on_chunk_start: (x: number) => {
-				const offset = (chunkLengthS - strideLengthS) * chunkCount;
+				const offset = stepS * chunkCount;
 				chunks.push({
 					text: "",
 					timestamp: [offset + x, null],
@@ -230,11 +242,15 @@ async function handleTranscribe({
 				const last = chunks[chunks.length - 1];
 				last.text += x;
 
-				self.postMessage({
-					type: "transcribe-update",
-					chunks: [...chunks],
-					tps,
-				} satisfies WorkerResponse);
+				const now = performance.now();
+				if (now - lastUpdateTime >= UPDATE_THROTTLE_MS) {
+					lastUpdateTime = now;
+					self.postMessage({
+						type: "transcribe-update",
+						chunks: [...chunks],
+						tps,
+					} satisfies WorkerResponse);
+				}
 			},
 			on_chunk_end: (x: number) => {
 				const current = chunks[chunks.length - 1];
@@ -245,6 +261,15 @@ async function handleTranscribe({
 				startTime = null;
 				numTokens = 0;
 				chunkCount++;
+
+				const progress = Math.min(
+					99,
+					Math.round((chunkCount / estimatedTotalChunks) * 100),
+				);
+				self.postMessage({
+					type: "transcribe-progress",
+					progress,
+				} satisfies WorkerResponse);
 			},
 		});
 
@@ -261,6 +286,15 @@ async function handleTranscribe({
 		});
 
 		if (cancelled) return;
+
+		// flush final streaming state
+		if (chunks.length > 0) {
+			self.postMessage({
+				type: "transcribe-update",
+				chunks: [...chunks],
+				tps,
+			} satisfies WorkerResponse);
+		}
 
 		const result = Array.isArray(output) ? output[0] : output;
 
