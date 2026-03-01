@@ -8,7 +8,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
+import { useLocalStorage } from "@/hooks/storage/use-local-storage";
 import { extractTimelineAudio } from "@/lib/media/mediabunny";
 import { useEditor } from "@/hooks/use-editor";
 import {
@@ -19,7 +20,6 @@ import {
 import {
 	SUBTITLE_TEMPLATES,
 	createSubtitleFromTemplate,
-	type SubtitleTemplate,
 } from "@/constants/subtitle-constants";
 import type {
 	TranscriptionLanguage,
@@ -36,11 +36,24 @@ import { Label } from "@/components/ui/label";
 export function Captions() {
 	const { t } = useTranslation();
 	const [selectedLanguage, setSelectedLanguage] =
-		useState<TranscriptionLanguage>("auto");
+		useLocalStorage<TranscriptionLanguage>({
+			key: "editor-caption-language",
+			defaultValue: "auto",
+		});
 	const [selectedModelId, setSelectedModelId] =
-		useState<TranscriptionModelId>(DEFAULT_TRANSCRIPTION_MODEL);
-	const [selectedTemplate, setSelectedTemplate] = useState<SubtitleTemplate>(
-		SUBTITLE_TEMPLATES[0],
+		useLocalStorage<TranscriptionModelId>({
+			key: "editor-caption-model-id",
+			defaultValue: DEFAULT_TRANSCRIPTION_MODEL,
+		});
+	const [selectedTemplateId, setSelectedTemplateId] = useLocalStorage<string>({
+		key: "editor-caption-template-id",
+		defaultValue: SUBTITLE_TEMPLATES[0].templateId,
+	});
+	const selectedTemplate = useMemo(
+		() =>
+			SUBTITLE_TEMPLATES.find((t) => t.templateId === selectedTemplateId) ??
+			SUBTITLE_TEMPLATES[0],
+		[selectedTemplateId],
 	);
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [processingStep, setProcessingStep] = useState("");
@@ -137,7 +150,7 @@ export function Captions() {
 
 	const handleLanguageChange = ({ value }: { value: string }) => {
 		if (value === "auto") {
-			setSelectedLanguage("auto");
+			setSelectedLanguage({ value: "auto" });
 			return;
 		}
 
@@ -145,7 +158,7 @@ export function Captions() {
 			(language) => language.code === value,
 		);
 		if (!matchedLanguage) return;
-		setSelectedLanguage(matchedLanguage.code);
+		setSelectedLanguage({ value: matchedLanguage.code });
 	};
 
 	const handleTemplateChange = ({ value }: { value: string }) => {
@@ -153,7 +166,7 @@ export function Captions() {
 			(t) => t.templateId === value,
 		);
 		if (template) {
-			setSelectedTemplate(template);
+			setSelectedTemplateId({ value: template.templateId });
 		}
 	};
 
@@ -167,9 +180,11 @@ export function Captions() {
 					<Label>{t("Model")}</Label>
 					<Select
 						value={selectedModelId}
-						onValueChange={(value) =>
-							setSelectedModelId(value as TranscriptionModelId)
-						}
+					onValueChange={(value) =>
+						setSelectedModelId({
+							value: value as TranscriptionModelId,
+						})
+					}
 						disabled={isProcessing}
 					>
 						<SelectTrigger>
