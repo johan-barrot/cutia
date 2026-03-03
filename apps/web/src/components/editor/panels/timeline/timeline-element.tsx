@@ -50,6 +50,7 @@ import {
 	FlipHorizontalIcon,
 	ArrowTurnBackwardIcon,
 	Edit02Icon,
+	AiVoiceGeneratorIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { uppercase } from "@/utils/string";
@@ -208,6 +209,18 @@ export function TimelineElement({
 						element={element as VideoElement}
 						trackId={track.id}
 					/>
+				)}
+				{element.type === "text" && (
+					<ActionMenuItem
+						action="convert-to-speech"
+						icon={<HugeiconsIcon icon={AiVoiceGeneratorIcon} />}
+					>
+						{selectedElements.length > 1
+							? t("Convert {{count}} to speech", {
+									count: selectedElements.length,
+								})
+							: t("Convert to speech")}
+					</ActionMenuItem>
 				)}
 				{canElementBeHidden(element) && (
 					<VisibilityMenuItem
@@ -406,8 +419,7 @@ function ElementContent({
 	}
 
 	if (element.type === "audio") {
-		const audioBuffer =
-			element.sourceType === "library" ? element.buffer : undefined;
+		const audioBuffer = element.buffer;
 
 		const audioUrl =
 			element.sourceType === "library"

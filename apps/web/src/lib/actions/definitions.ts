@@ -127,6 +127,10 @@ export const ACTIONS = {
 		description: "Detach audio from video",
 		category: "editing",
 	},
+	"convert-to-speech": {
+		description: "Convert text to speech",
+		category: "editing",
+	},
 	"toggle-bookmark": {
 		description: "Toggle bookmark at playhead",
 		category: "timeline",

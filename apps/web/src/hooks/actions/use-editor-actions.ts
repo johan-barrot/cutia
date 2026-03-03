@@ -5,7 +5,10 @@ import { useMediaPreviewStore } from "@/stores/media-preview-store";
 import { useActionHandler } from "@/hooks/actions/use-action-handler";
 import { useEditor } from "../use-editor";
 import { useElementSelection } from "../timeline/element/use-element-selection";
-import { getElementsAtTime } from "@/lib/timeline";
+import { getElementsAtTime, buildUploadAudioElement } from "@/lib/timeline";
+import { generateSpeechFromText } from "@/lib/tts/service";
+import { toast } from "sonner";
+import { i18next } from "@i18next-toolkit/react";
 
 export function useEditorActions() {
 	const editor = useEditor();
@@ -302,6 +305,99 @@ export function useEditorActions() {
 		"toggle-snapping",
 		() => {
 			toggleSnapping();
+		},
+		undefined,
+	);
+
+	useActionHandler(
+		"convert-to-speech",
+		() => {
+			const results = editor.timeline.getElementsWithTracks({
+				elements: selectedElements,
+			});
+			const textElements = results.filter(
+				({ element }) => element.type === "text",
+			);
+
+			if (textElements.length === 0) return;
+
+			const toastId = "convert-to-speech";
+			toast.loading(
+				i18next.t("Converting {{count}} text to speech...", {
+					count: textElements.length,
+				}),
+				{ id: toastId },
+			);
+
+			(async () => {
+				let successCount = 0;
+				let failCount = 0;
+
+				const tracks = editor.timeline.getTracks();
+				const audioTrack = tracks.find((track) => track.type === "audio");
+				const trackId = audioTrack
+					? audioTrack.id
+					: editor.timeline.addTrack({ type: "audio" });
+
+				const projectId = editor.project.getActive().metadata.id;
+
+				for (const { element } of textElements) {
+					if (element.type !== "text") continue;
+					try {
+						const result = await generateSpeechFromText({
+							text: element.content,
+						});
+						const name = `TTS: ${element.content.slice(0, 30)}`;
+						const file = new File([result.blob], `${name}.mp3`, {
+							type: "audio/mpeg",
+						});
+						const url = URL.createObjectURL(result.blob);
+						const mediaId = await editor.media.addMediaAsset({
+							projectId,
+							asset: {
+								name,
+								type: "audio",
+								file,
+								url,
+								duration: result.duration,
+								ephemeral: true,
+							},
+						});
+						const audioElement = buildUploadAudioElement({
+							mediaId,
+							name,
+							duration: result.duration,
+							startTime: element.startTime,
+							buffer: result.buffer,
+						});
+						editor.timeline.insertElement({
+							placement: { mode: "explicit", trackId },
+							element: audioElement,
+						});
+						successCount++;
+					} catch (error) {
+						console.error("TTS conversion failed for element:", error);
+						failCount++;
+					}
+				}
+
+				if (failCount === 0) {
+					toast.success(
+						i18next.t("Converted {{count}} text to speech", {
+							count: successCount,
+						}),
+						{ id: toastId },
+					);
+				} else {
+					toast.warning(
+						i18next.t("{{success}} converted, {{fail}} failed", {
+							success: successCount,
+							fail: failCount,
+						}),
+						{ id: toastId },
+					);
+				}
+			})();
 		},
 		undefined,
 	);

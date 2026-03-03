@@ -48,7 +48,18 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		return NextResponse.json({ url: parsed.data.url });
+		const audioResponse = await fetch(parsed.data.url);
+		if (!audioResponse.ok) {
+			return NextResponse.json(
+				{ error: `Failed to download audio: ${audioResponse.status}` },
+				{ status: 502 },
+			);
+		}
+
+		const audioArrayBuffer = await audioResponse.arrayBuffer();
+		const base64 = Buffer.from(audioArrayBuffer).toString("base64");
+
+		return NextResponse.json({ audio: base64 });
 	} catch (error) {
 		const message = error instanceof Error ? error.message : "Unknown error";
 		console.error("TTS generate error:", error);
