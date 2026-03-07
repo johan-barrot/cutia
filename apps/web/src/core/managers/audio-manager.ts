@@ -206,7 +206,11 @@ export class AudioManager {
 		const node = audioContext.createBufferSource();
 		node.buffer = buffer;
 		node.playbackRate.value = rate;
-		node.connect(this.masterGain);
+
+		const clipGain = audioContext.createGain();
+		clipGain.gain.value = clip.volume;
+		node.connect(clipGain);
+		clipGain.connect(this.masterGain);
 
 		if (scheduleTime >= audioContext.currentTime) {
 			node.start(scheduleTime, sourceOffset, remainingDuration);

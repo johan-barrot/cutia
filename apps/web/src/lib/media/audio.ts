@@ -11,7 +11,7 @@ import { mediaSupportsAudio } from "@/lib/media/media-utils";
 
 export type CollectedAudioElement = Omit<
 	AudioElement,
-	"type" | "mediaId" | "volume" | "id" | "name" | "sourceType" | "sourceUrl"
+	"type" | "mediaId" | "id" | "name" | "sourceType" | "sourceUrl"
 > & { buffer: AudioBuffer };
 
 export function createAudioContext(): AudioContext {
@@ -94,48 +94,51 @@ export async function collectAudioElements({
 				"muted" in element ? (element.muted ?? false) : false;
 			const muted = isTrackMuted || isElementMuted;
 
-			if (element.type === "audio") {
-				pendingElements.push(
-					resolveAudioBufferForElement({
-						element,
-						mediaMap,
-						audioContext,
-					}).then((audioBuffer) => {
-						if (!audioBuffer) return null;
-						return {
-							buffer: audioBuffer,
-							startTime: element.startTime,
-							duration: element.duration,
-							trimStart: element.trimStart,
-							trimEnd: element.trimEnd,
-							muted,
-						};
-					}),
-				);
-			}
+		if (element.type === "audio") {
+			const volume = element.volume ?? 1;
+			pendingElements.push(
+				resolveAudioBufferForElement({
+					element,
+					mediaMap,
+					audioContext,
+				}).then((audioBuffer) => {
+					if (!audioBuffer) return null;
+					return {
+						buffer: audioBuffer,
+						startTime: element.startTime,
+						duration: element.duration,
+						trimStart: element.trimStart,
+						trimEnd: element.trimEnd,
+						volume,
+						muted,
+					};
+				}),
+			);
+		}
 
-			if (element.type === "video") {
-				const mediaAsset = mediaMap.get(element.mediaId);
-				if (!mediaAsset || !mediaSupportsAudio({ media: mediaAsset }))
-					continue;
+		if (element.type === "video") {
+			const mediaAsset = mediaMap.get(element.mediaId);
+			if (!mediaAsset || !mediaSupportsAudio({ media: mediaAsset }))
+				continue;
 
-				pendingElements.push(
-					resolveVideoAudioBuffer({
-						file: mediaAsset.file,
-						audioContext,
-					}).then((audioBuffer) => {
-						if (!audioBuffer) return null;
-						return {
-							buffer: audioBuffer,
-							startTime: element.startTime,
-							duration: element.duration,
-							trimStart: element.trimStart,
-							trimEnd: element.trimEnd,
-							muted,
-						};
-					}),
-				);
-			}
+			pendingElements.push(
+				resolveVideoAudioBuffer({
+					file: mediaAsset.file,
+					audioContext,
+				}).then((audioBuffer) => {
+					if (!audioBuffer) return null;
+					return {
+						buffer: audioBuffer,
+						startTime: element.startTime,
+						duration: element.duration,
+						trimStart: element.trimStart,
+						trimEnd: element.trimEnd,
+						volume: 1,
+						muted,
+					};
+				}),
+			);
+		}
 		}
 	}
 
@@ -175,7 +178,7 @@ async function resolveAudioBufferForElement({
 	try {
 		if (element.sourceType === "upload") {
 			const asset = mediaMap.get(element.mediaId);
-			if (!asset || asset.type !== "audio") return null;
+			if (!asset || !mediaSupportsAudio({ media: asset })) return null;
 
 			const arrayBuffer = await asset.file.arrayBuffer();
 			return await audioContext.decodeAudioData(arrayBuffer.slice(0));
@@ -214,6 +217,7 @@ export interface AudioClipSource {
 	trimStart: number;
 	trimEnd: number;
 	muted: boolean;
+	volume: number;
 	playbackRate: number;
 }
 
@@ -274,6 +278,7 @@ async function fetchLibraryAudioClip({
 			trimStart: element.trimStart,
 			trimEnd: element.trimEnd,
 			muted,
+			volume: element.volume ?? 1,
 			playbackRate: element.playbackRate ?? 1,
 		};
 	} catch (error) {
@@ -310,6 +315,17 @@ function collectMediaAudioSource({
 	};
 }
 
+function getElementVolume({
+	element,
+}: {
+	element: TimelineElement;
+}): number {
+	if ("volume" in element && typeof element.volume === "number") {
+		return element.volume;
+	}
+	return 1;
+}
+
 function collectMediaAudioClip({
 	element,
 	mediaAsset,
@@ -328,6 +344,7 @@ function collectMediaAudioClip({
 		trimStart: element.trimStart,
 		trimEnd: element.trimEnd,
 		muted,
+		volume: getElementVolume({ element }),
 		playbackRate: getElementPlaybackRate({ element }),
 	};
 }
@@ -350,6 +367,10 @@ export async function collectAudioMixSources({
 
 		for (const element of track.elements) {
 			if (!canElementHaveAudio(element)) continue;
+
+			const isElementMuted =
+				"muted" in element ? (element.muted ?? false) : false;
+			if (isElementMuted) continue;
 
 			if (element.type === "audio") {
 				if (element.sourceType === "upload") {
@@ -508,7 +529,13 @@ function mixAudioChannels({
 	outputLength: number;
 	sampleRate: number;
 }): void {
-	const { buffer, startTime, trimStart, duration: elementDuration } = element;
+	const {
+		buffer,
+		startTime,
+		trimStart,
+		duration: elementDuration,
+		volume,
+	} = element;
 
 	const sourceStartSample = Math.floor(trimStart * buffer.sampleRate);
 	const sourceLengthSamples = Math.floor(elementDuration * buffer.sampleRate);
@@ -530,7 +557,7 @@ function mixAudioChannels({
 			const sourceIndex = sourceStartSample + Math.floor(i / resampleRatio);
 			if (sourceIndex >= sourceData.length) break;
 
-			outputData[outputIndex] += sourceData[sourceIndex];
+			outputData[outputIndex] += sourceData[sourceIndex] * volume;
 		}
 	}
 }
