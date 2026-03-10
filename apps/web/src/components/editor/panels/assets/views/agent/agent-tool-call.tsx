@@ -102,11 +102,9 @@ export function AgentToolCall({
 			<button
 				type="button"
 				className="flex w-full items-center gap-1.5 px-2 py-1.5"
-				onClick={() => setIsExpanded(!isExpanded)}
-				onKeyDown={(event) => {
-					if (event.key === "Enter" || event.key === " ") {
-						setIsExpanded(!isExpanded);
-					}
+				onClick={(event) => {
+					setIsExpanded(!isExpanded);
+					(event.currentTarget as HTMLElement).blur();
 				}}
 			>
 				<HugeiconsIcon
