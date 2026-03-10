@@ -1,11 +1,12 @@
 "use client";
 
 import { notFound } from "next/navigation";
+import { IS_DEV } from "@/constants/editor-constants";
 import { BasePage } from "@/app/base-page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TranscriptionPlayground } from "./_components/transcription-playground";
 
-if (process.env.NODE_ENV !== "development") {
+if (!IS_DEV) {
 	notFound();
 }
 

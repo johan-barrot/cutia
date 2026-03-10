@@ -35,6 +35,9 @@ import {
 	PropertyItemLabel,
 	PropertyItemValue,
 } from "@/components/editor/panels/properties/property-item";
+import { isDevPlaceholderAvailable } from "@/lib/ai/placeholder";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export function SettingsView() {
 	return <ProjectSettingsTabs />;
@@ -464,10 +467,12 @@ function AISettingsView() {
 		imageApiKey,
 		videoProviderId,
 		videoApiKey,
+		devPlaceholderEnabled,
 		setImageProvider,
 		setImageApiKey,
 		setVideoProvider,
 		setVideoApiKey,
+		setDevPlaceholderEnabled,
 	} = useAISettingsStore();
 
 	const handleImageProviderChange = (value: string) => {
@@ -555,6 +560,31 @@ function AISettingsView() {
 					</PropertyItemValue>
 				</PropertyItem>
 			</div>
+
+			{isDevPlaceholderAvailable() && (
+				<div className="border-foreground/10 flex flex-col gap-3 border-t pt-4">
+					<span className="text-foreground text-xs font-medium">
+						{t("Development")}
+					</span>
+					<div className="flex items-center justify-between">
+						<div className="space-y-0.5">
+							<Label htmlFor="dev-placeholder-mode">
+								{t("Placeholder Mode")}
+							</Label>
+							<p className="text-muted-foreground text-xs">
+								{t(
+									"Replace AI generation with placeholder assets to save costs",
+								)}
+							</p>
+						</div>
+						<Switch
+							id="dev-placeholder-mode"
+							checked={devPlaceholderEnabled}
+							onCheckedChange={setDevPlaceholderEnabled}
+						/>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

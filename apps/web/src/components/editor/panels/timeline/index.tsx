@@ -26,6 +26,7 @@ import { useSelectionBox } from "@/hooks/timeline/use-selection-box";
 import { SnapIndicator } from "./snap-indicator";
 import type { SnapPoint } from "@/hooks/timeline/use-timeline-snapping";
 import type { TimelineTrack } from "@/types/timeline";
+import { IS_DEV } from "@/constants/editor-constants";
 import {
 	TIMELINE_CONSTANTS,
 	TRACK_ICONS,
@@ -288,7 +289,7 @@ export function Timeline() {
 													}}
 												/>
 												<div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-													{process.env.NODE_ENV === "development" &&
+													{IS_DEV &&
 														isMainTrack(track) && (
 															<div className="bg-red-500 size-1.5 rounded-full" />
 														)}

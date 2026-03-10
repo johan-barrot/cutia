@@ -2,6 +2,10 @@ import { i18next } from "@/lib/i18n";
 import { create } from "zustand";
 import { toast } from "sonner";
 import { EditorCore } from "@/core";
+import {
+	isDevPlaceholderActive,
+	generatePlaceholderImage,
+} from "@/lib/ai/placeholder";
 import { getImageProvider } from "@/lib/ai/providers";
 import { processMediaAssets } from "@/lib/media/processing";
 import { uploadReferenceImage } from "@/lib/media/upload-reference";
@@ -264,6 +268,47 @@ export const useAIImageGenerationStore = create<AIImageGenerationState>()(
 		generate: async () => {
 			if (get().isGenerating) return;
 
+			const { prompt, aspectRatio } = get();
+			const trimmedPrompt = prompt.trim();
+			if (!trimmedPrompt) {
+				toast.error(i18next.t("Please enter a prompt"));
+				return;
+			}
+
+			if (isDevPlaceholderActive()) {
+				set({ isGenerating: true });
+				try {
+					const file = await generatePlaceholderImage({
+						prompt: trimmedPrompt,
+						aspectRatio: aspectRatio === "auto" ? undefined : aspectRatio,
+					});
+					const blobUrl = URL.createObjectURL(file);
+					const newImage: GeneratedImage = {
+						id: generateUUID(),
+						url: blobUrl,
+						prompt: trimmedPrompt,
+						assetStatus: "pending" as const,
+					};
+					set((state) => ({
+						generatedImages: [newImage, ...state.generatedImages],
+						isGenerating: false,
+					}));
+					toast.success(i18next.t("Generated {{num}} image(s)", { num: 1 }));
+					void convertAndAddToAssets({
+						imageId: newImage.id,
+						imageUrl: blobUrl,
+					});
+				} catch (error) {
+					const message =
+						error instanceof Error
+							? error.message
+							: i18next.t("Image generation failed");
+					toast.error(message);
+					set({ isGenerating: false });
+				}
+				return;
+			}
+
 			const { imageProviderId, imageApiKey } = useAISettingsStore.getState();
 
 			if (!imageProviderId) {
@@ -281,13 +326,7 @@ export const useAIImageGenerationStore = create<AIImageGenerationState>()(
 				return;
 			}
 
-			const { prompt, aspectRatio, referenceImage, selectedCharacterId } =
-				get();
-			const trimmedPrompt = prompt.trim();
-			if (!trimmedPrompt) {
-				toast.error(i18next.t("Please enter a prompt"));
-				return;
-			}
+			const { referenceImage, selectedCharacterId } = get();
 
 			set({ isGenerating: true });
 

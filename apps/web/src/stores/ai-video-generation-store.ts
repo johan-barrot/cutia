@@ -2,6 +2,10 @@ import { i18next } from "@/lib/i18n";
 import { create } from "zustand";
 import { toast } from "sonner";
 import { EditorCore } from "@/core";
+import {
+	isDevPlaceholderActive,
+	generatePlaceholderVideo,
+} from "@/lib/ai/placeholder";
 import { getVideoProvider } from "@/lib/ai/providers";
 import type { VideoTaskStatus } from "@/lib/ai/providers/types";
 import { pollVideoTask } from "@/lib/ai/providers/seedance";
@@ -166,6 +170,64 @@ export const useAIVideoGenerationStore = create<AIVideoGenerationState>()(
 		generate: async () => {
 			if (get().isGenerating) return;
 
+			const { prompt, duration, aspectRatio } = get();
+			const trimmedPrompt = prompt.trim();
+			if (!trimmedPrompt) {
+				toast.error(i18next.t("Please enter a prompt"));
+				return;
+			}
+
+			if (isDevPlaceholderActive()) {
+				set({ isGenerating: true });
+				try {
+					const file = await generatePlaceholderVideo({
+						prompt: trimmedPrompt,
+						durationSeconds: duration,
+						aspectRatio,
+					});
+
+					const editor = EditorCore.getInstance();
+					const project = editor.project.getActiveOrNull();
+					if (!project) {
+						toast.error(i18next.t("No active project"));
+						set({ isGenerating: false });
+						return;
+					}
+
+					const processedAssets = await processMediaAssets({
+						files: [file],
+					});
+					for (const asset of processedAssets) {
+						await editor.media.addMediaAsset({
+							projectId: project.metadata.id,
+							asset,
+						});
+					}
+
+					const videoId = generateUUID();
+					const newVideo: GeneratedVideo = {
+						id: videoId,
+						prompt: trimmedPrompt,
+						taskId: "placeholder",
+						taskStatus: "succeeded",
+						assetStatus: "added",
+					};
+					set((state) => ({
+						generatedVideos: [newVideo, ...state.generatedVideos],
+						isGenerating: false,
+					}));
+					toast.success(i18next.t("Video generation completed"));
+				} catch (error) {
+					const message =
+						error instanceof Error
+							? error.message
+							: i18next.t("Video generation failed");
+					toast.error(message);
+					set({ isGenerating: false });
+				}
+				return;
+			}
+
 			const { videoProviderId, videoApiKey } = useAISettingsStore.getState();
 
 			if (!videoProviderId) {
@@ -179,19 +241,7 @@ export const useAIVideoGenerationStore = create<AIVideoGenerationState>()(
 				return;
 			}
 
-			const {
-				prompt,
-				duration,
-				aspectRatio,
-				resolution,
-				referenceImage,
-				selectedCharacterId,
-			} = get();
-			const trimmedPrompt = prompt.trim();
-			if (!trimmedPrompt) {
-				toast.error(i18next.t("Please enter a prompt"));
-				return;
-			}
+			const { resolution, referenceImage, selectedCharacterId } = get();
 
 			set({ isGenerating: true });
 

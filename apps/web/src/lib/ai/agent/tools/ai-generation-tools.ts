@@ -1,4 +1,9 @@
 import { EditorCore } from "@/core";
+import {
+	isDevPlaceholderActive,
+	generatePlaceholderImage,
+	generatePlaceholderVideo,
+} from "@/lib/ai/placeholder";
 import { getImageProvider, getVideoProvider } from "@/lib/ai/providers";
 import type { AIVideoProvider } from "@/lib/ai/providers/types";
 import { pollVideoTask } from "@/lib/ai/providers/seedance";
@@ -190,6 +195,25 @@ export const generateImageTool: AgentTool = {
 	},
 	requiresConfirmation: true,
 	async execute(args) {
+		const prompt = args.prompt as string;
+		const aspectRatio = args.aspectRatio as string | undefined;
+
+		if (isDevPlaceholderActive()) {
+			const file = await generatePlaceholderImage({ prompt, aspectRatio });
+			const added = await addFileToProject({ file });
+			return {
+				success: true,
+				message: `[DEV PLACEHOLDER] Generated placeholder image and added to media library`,
+				data: {
+					mediaType: "image",
+					previewUrls: [added.previewUrl],
+					assets: [{ mediaId: added.mediaId, name: added.name }],
+					provider: "placeholder",
+					characterId: undefined,
+				},
+			};
+		}
+
 		const configured = getConfiguredImageProvider();
 		if (!configured) {
 			return {
@@ -200,8 +224,6 @@ export const generateImageTool: AgentTool = {
 		}
 
 		const { provider, apiKey } = configured;
-		const prompt = args.prompt as string;
-		const aspectRatio = args.aspectRatio as string | undefined;
 		const referenceMediaId = args.referenceMediaId as string | undefined;
 		const resolvedCharacterId = resolveCharacterId({
 			characterId: args.characterId as string | undefined,
@@ -343,6 +365,31 @@ export const generateVideoTool: AgentTool = {
 	},
 	requiresConfirmation: true,
 	async execute(args) {
+		const prompt = args.prompt as string;
+		const duration = (args.duration as number) ?? 5;
+		const aspectRatio = (args.aspectRatio as string) ?? "16:9";
+
+		if (isDevPlaceholderActive()) {
+			const file = await generatePlaceholderVideo({
+				prompt,
+				durationSeconds: duration,
+				aspectRatio,
+			});
+			const added = await addFileToProject({ file });
+			return {
+				success: true,
+				message: `[DEV PLACEHOLDER] Generated placeholder video and added to media library as '${added.name}'`,
+				data: {
+					mediaType: "video",
+					mediaId: added.mediaId,
+					previewUrls: [added.previewUrl],
+					name: added.name,
+					provider: "placeholder",
+					characterId: undefined,
+				},
+			};
+		}
+
 		const configured = getConfiguredVideoProvider();
 		if (!configured) {
 			return {
@@ -353,9 +400,6 @@ export const generateVideoTool: AgentTool = {
 		}
 
 		const { provider, apiKey } = configured;
-		const prompt = args.prompt as string;
-		const duration = (args.duration as number) ?? 5;
-		const aspectRatio = (args.aspectRatio as string) ?? "16:9";
 		const resolution = (args.resolution as string) ?? "720p";
 		const referenceMediaId = args.referenceMediaId as string | undefined;
 		const resolvedCharacterId = resolveCharacterId({
