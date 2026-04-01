@@ -144,7 +144,7 @@ export function DraggableItem({
 							{preview}
 							{!isDragging && (
 								<PlusButton
-									className="opacity-0 group-hover:opacity-100"
+									className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
 									onClick={handleAddToTimeline}
 								/>
 							)}
@@ -188,7 +188,9 @@ export function DraggableItem({
 						<div className="size-6 flex-shrink-0 overflow-hidden rounded-[0.35rem]">
 							{preview}
 						</div>
-						<span className="w-full flex-1 truncate text-sm text-left">{name}</span>
+						<span className="w-full flex-1 truncate text-sm text-left">
+							{name}
+						</span>
 					</button>
 				</div>
 			)}

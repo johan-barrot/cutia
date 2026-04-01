@@ -1,4 +1,5 @@
 import Script from "next/script";
+import type { Viewport } from "next";
 
 import "./globals.css";
 import { baseMetaData } from "./metadata";
@@ -13,6 +14,10 @@ import { i18nConfig } from "../i18n.config";
 const siteFont = Inter({ subsets: ["latin"] });
 
 export const metadata = baseMetaData;
+
+export const viewport: Viewport = {
+	viewportFit: "cover",
+};
 
 initServerI18n(i18nConfig);
 

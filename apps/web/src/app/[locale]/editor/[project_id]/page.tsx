@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { lazy, Suspense } from "react";
 import {
 	ResizablePanelGroup,
 	ResizablePanel,
@@ -17,6 +18,13 @@ import { EditorProvider } from "@/components/providers/editor-provider";
 import { MigrationDialog } from "@/components/editor/dialogs/migration-dialog";
 import { usePanelStore } from "@/stores/panel-store";
 import { useAgentStore } from "@/stores/agent-store";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const MobileEditorLayout = lazy(() =>
+	import("@/components/editor/mobile/mobile-editor-layout").then((m) => ({
+		default: m.MobileEditorLayout,
+	})),
+);
 
 export default function Editor() {
 	const params = useParams();
@@ -24,15 +32,37 @@ export default function Editor() {
 
 	return (
 		<EditorProvider projectId={projectId}>
-			<div className="bg-background flex h-screen w-screen flex-col overflow-hidden">
-				<EditorHeader />
-				<div className="min-h-0 min-w-0 flex-1 px-3 pb-3">
-					<EditorLayout />
-				</div>
-				{/* <Onboarding /> */}
-				<MigrationDialog />
-			</div>
+			<EditorShell />
 		</EditorProvider>
+	);
+}
+
+function EditorShell() {
+	const isMobile = useIsMobile();
+
+	return (
+		<div className="bg-background flex h-screen w-screen flex-col overflow-hidden">
+			{isMobile ? (
+				<Suspense
+					fallback={
+						<div className="flex h-screen items-center justify-center">
+							Loading...
+						</div>
+					}
+				>
+					<MobileEditorLayout />
+				</Suspense>
+			) : (
+				<>
+					<EditorHeader />
+					<div className="min-h-0 min-w-0 flex-1 px-3 pb-3">
+						<EditorLayout />
+					</div>
+				</>
+			)}
+			{/* <Onboarding /> */}
+			<MigrationDialog />
+		</div>
 	);
 }
 
@@ -75,10 +105,7 @@ function EditorLayout() {
 							onLayout={(sizes) => {
 								setPanel("tools", sizes[0] ?? panels.tools);
 								setPanel("preview", sizes[1] ?? panels.preview);
-								setPanel(
-									"properties",
-									sizes[2] ?? panels.properties,
-								);
+								setPanel("properties", sizes[2] ?? panels.properties);
 							}}
 						>
 							<ResizablePanel

@@ -115,9 +115,37 @@ Projects persist in IndexedDB. When modifying persisted types (`TProject`, `TSce
 - `timeline-thumbnail/` — thumbnail generation for timeline
 - `video-cache/` — video frame caching
 
+### Mobile / Desktop Dual View Layer
+
+The editor has two independent view layers sharing the same EditorCore and stores:
+
+- **Desktop**: `components/editor/` (excluding `mobile/`)
+- **Mobile**: `components/editor/mobile/`
+
+Entry point branches in `app/[locale]/editor/[project_id]/page.tsx` via `useIsMobile()`.
+
+**When modifying any editor feature, you must update both desktop and mobile components.** Key mappings:
+
+| Desktop | Mobile |
+|---------|--------|
+| `editor-layout.tsx` | `mobile/mobile-editor-layout.tsx` |
+| `preview/` | `mobile/mobile-preview.tsx` |
+| `timeline/` | `mobile/mobile-timeline/` |
+| `properties/` | `mobile/mobile-drawer/mobile-properties-drawer.tsx` |
+| `tools-panel/` | `mobile/mobile-drawer/mobile-assets-drawer.tsx` |
+
+Shared layer (both platforms consume, changes must not break either):
+- `core/`, `stores/`, `services/`, `hooks/actions/`, `types/`, `constants/`, `lib/`
+
+Design spec: `docs/superpowers/specs/2026-03-30-mobile-editor-design.md`
+
 ### API Routes
 
 `apps/web/src/app/api/` — no locale prefix. Includes AI proxy, auth, health check, sound search (Freesound), TTS, and media upload (Cloudflare R2).
+
+## Git Policy
+
+- **Never commit automatically.** Do not run `git add`, `git commit`, or `git push` unless the user explicitly asks. Code changes should be left unstaged for the user to review and commit themselves.
 
 ## Code Conventions
 
