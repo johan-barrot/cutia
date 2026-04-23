@@ -146,6 +146,7 @@ Design spec: `docs/superpowers/specs/2026-03-30-mobile-editor-design.md`
 ## Git Policy
 
 - **Never commit automatically.** Do not run `git add`, `git commit`, or `git push` unless the user explicitly asks. Code changes should be left unstaged for the user to review and commit themselves.
+- This applies even during multi-step plans (e.g. subagent-driven-development): skip the "commit" step in every task. The user reviews and commits the final diff themselves at the end.
 
 ## Code Conventions
 
